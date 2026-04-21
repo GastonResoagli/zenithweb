@@ -10,7 +10,7 @@ app.use(express.json());
 
 
 //rutas
-const productoRoutes = require('./routes/productoRoutes');
+const productoRoutes = require('./src/routes/productoRoutes');
 app.use('/api/productos', productoRoutes);
 
 //server

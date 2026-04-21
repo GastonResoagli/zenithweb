@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const Pool = new Pool({
+const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'control_stock',
@@ -9,4 +9,4 @@ const Pool = new Pool({
     port: 5432,
 })
 
-module.exports = Pool;
+module.exports = pool;
