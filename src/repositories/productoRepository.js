@@ -16,7 +16,7 @@ exports.create = async (producto) => {
     const result = await db.query(`INSERT INTO producto
         (nombre, descripcion, stock, precio_compra, precio_venta, id_categoria)
         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [nombre, descripcion, stock, precio_compra, precio_venta, id_categoria]
+        [nombre, descripcion, parseInt(stock), parseFloat(precio_compra), parseFloat(precio_venta), parseInt(id_categoria)]
     );
     return result.rows[0];
 }
@@ -28,7 +28,7 @@ exports.update = async (id, producto) => {
         `UPDATE producto SET
         nombre=$1, descripcion=$2, stock=$3, precio_compra=$4, precio_venta=$5, id_categoria=$6
         WHERE id_producto=$7 RETURNING *`,
-        [nombre, descripcion, stock, precio_compra, precio_venta, id_categoria, id]
+        [nombre, descripcion, parseInt(stock), parseFloat(precio_compra), parseFloat(precio_venta), parseInt(id_categoria), parseInt(id)]
     );
     return result.rows[0];
 };
