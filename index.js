@@ -10,8 +10,15 @@ app.use(express.json());
 
 
 //rutas
+const authRoutes = require('./src/routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
+const authenticateToken = require('./src/middleware/authMiddleware');
 const productoRoutes = require('./src/routes/productoRoutes');
-app.use('/api/productos', productoRoutes);
+app.use('/api/productos', authenticateToken, productoRoutes);
+
+const ventaRoutes = require('./src/routes/ventaRoutes');
+app.use('/api/ventas', authenticateToken, ventaRoutes);
 
 //server
 const PORT = process.env.PORT || 3000;
