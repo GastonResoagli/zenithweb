@@ -16,7 +16,8 @@ const Login = () => {
         try {
             const data = await login(usuario, password);
             localStorage.setItem('token', data.token);
-            navigate('/productos');
+            localStorage.setItem('rol', data.rol);
+            navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Error al iniciar sesión');
         } finally {

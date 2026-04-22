@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Ventas from './pages/Ventas';
 import PrivateRoute from './components/PrivateRoute';
@@ -9,13 +10,16 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={
+                    <PrivateRoute><Dashboard /></PrivateRoute>
+                } />
                 <Route path="/productos" element={
                     <PrivateRoute><Productos /></PrivateRoute>
                 } />
                 <Route path="/ventas" element={
-                    <PrivateRoute><Ventas /></PrivateRoute>
+                    <PrivateRoute allowedRoles={['gerente', 'vendedor']}><Ventas /></PrivateRoute>
                 } />
-                <Route path="*" element={<Navigate to="/productos" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
         </BrowserRouter>
     );
