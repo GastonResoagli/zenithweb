@@ -26,7 +26,7 @@ const Ventas = () => {
     };
 
     const cargarProductos = async () => {
-        try { setProductos(await getProductos()); } catch {}
+        try { setProductos(await getProductos({ soloActivos: true })); } catch {}
     };
 
     const montoTotal = detalles.reduce((acc, d) => acc + d.subtotal, 0);

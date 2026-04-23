@@ -28,6 +28,11 @@ const Navbar = () => {
                             Ventas
                         </NavLink>
                     )}
+                    {rol === 'gerente' && (
+                        <NavLink to="/reportes" className={linkClass}>
+                            Reportes
+                        </NavLink>
+                    )}
                     <button
                         onClick={logout}
                         className="ml-4 px-4 py-2 text-sm text-bb-100 border border-bb-600 rounded hover:bg-bb-700 transition-colors"

@@ -8,5 +8,6 @@ router.get('/:id', productoController.getById);
 router.post('/', authorizeRoles('gerente', 'operador_stock'), productoController.create);
 router.put('/:id', authorizeRoles('gerente', 'operador_stock'), productoController.update);
 router.delete('/:id', authorizeRoles('gerente', 'operador_stock'), productoController.remove);
+router.patch('/:id/estado', authorizeRoles('gerente', 'operador_stock'), productoController.setEstado);
 
 module.exports = router;

@@ -20,6 +20,12 @@ app.use('/api/productos', authenticateToken, productoRoutes);
 const ventaRoutes = require('./src/routes/ventaRoutes');
 app.use('/api/ventas', authenticateToken, ventaRoutes);
 
+const movimientoRoutes = require('./src/routes/movimientoRoutes');
+app.use('/api/movimientos', authenticateToken, movimientoRoutes);
+
+const reporteRoutes = require('./src/routes/reporteRoutes');
+app.use('/api/reportes', authenticateToken, reporteRoutes);
+
 //server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

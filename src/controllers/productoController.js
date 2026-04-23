@@ -2,7 +2,8 @@ const productoService = require('../services/productoService');
 
 exports.getAll = async (req, res) => {
     try {
-        const data = await productoService.getAll();
+        const soloActivos = req.query.soloActivos === 'true';
+        const data = await productoService.getAll(soloActivos);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -41,6 +42,19 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
     try {
         const data = await productoService.remove(req.params.id);
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.setEstado = async (req, res) => {
+    try {
+        const { estado } = req.body;
+        if (typeof estado !== 'boolean') {
+            return res.status(400).json({ error: 'El campo estado debe ser true o false' });
+        }
+        const data = await productoService.setEstado(req.params.id, estado);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });

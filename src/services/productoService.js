@@ -1,7 +1,7 @@
 const productoRepository = require('../repositories/productoRepository');
 
-exports.getAll = () => {
-    return productoRepository.getAll();
+exports.getAll = (soloActivos = false) => {
+    return productoRepository.getAll(soloActivos);
 };
 
 exports.getById = (id) => {
@@ -19,4 +19,8 @@ exports.update = (id, producto) => {
 
 exports.remove = (id) => {
     return productoRepository.remove(id);
+}
+
+exports.setEstado = (id, estado) => {
+    return productoRepository.setEstado(id, estado);
 }
