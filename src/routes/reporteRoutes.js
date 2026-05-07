@@ -3,6 +3,8 @@ const router = express.Router();
 const reporteController = require('../controllers/reporteController');
 const authorizeRoles = require('../middleware/roleMiddleware');
 
-router.post('/', authorizeRoles('gerente'), reporteController.generar);
+// Solo el gerente puede consultar y generar reportes de movimientos de inventario
+router.get('/', authorizeRoles('gerente'), reporteController.getMovimientos);
+router.post('/', authorizeRoles('gerente'), reporteController.generarReportes);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const db = require('../db/connection');
 
 exports.getMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) => {
+    // Para salidas mostramos el nombre del cliente; para entradas, el operador que las registró
     let query = `
         SELECT ri.id_registro, ri.tipo, ri.cantidad, ri.total, ri.fecha,
                p.nombre AS nombre_producto,
@@ -15,7 +16,9 @@ exports.getMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) =
     const params = [];
     let i = 1;
 
+    // Construcción dinámica de filtros opcionales con parámetros posicionales para evitar SQL injection
     if (fechaDesde) { query += ` AND ri.fecha >= $${i++}`; params.push(fechaDesde); }
+    // Se agrega 23:59:59 para incluir todos los movimientos del día de fechaHasta
     if (fechaHasta) { query += ` AND ri.fecha <= $${i++}`; params.push(fechaHasta + ' 23:59:59'); }
     if (tipo) { query += ` AND ri.tipo = $${i++}`; params.push(tipo); }
     if (id_producto) { query += ` AND ri.id_producto = $${i++}`; params.push(id_producto); }

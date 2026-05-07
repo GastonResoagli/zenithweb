@@ -1,6 +1,6 @@
 const db = require('../db/connection');
 
-exports.getAll = async () => {
+exports.consultarVentas = async () => {
     const result = await db.query(`
         SELECT v.*, COUNT(dv.id_detalle_venta) AS cantidad_items
         FROM venta v
@@ -25,54 +25,32 @@ exports.getById = async (id) => {
     return { ...venta.rows[0], detalles: detalles.rows };
 };
 
-exports.create = async (venta, detalles) => {
-    const client = await db.connect();
-    try {
-        await client.query('BEGIN');
+exports.crearVenta = async (client, venta, detalles) => {
+    const { tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, id_usuario } = venta;
 
-        const { tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, id_usuario } = venta;
+    const ventaResult = await client.query(`
+        INSERT INTO venta (id_usuario, tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, fecha)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *
+    `, [parseInt(id_usuario), tipo_documento, documento_cliente, nombre_cliente,
+        parseFloat(monto_pago), parseFloat(monto_cambio), parseFloat(monto_total)]);
 
-        const ventaResult = await client.query(`
-            INSERT INTO venta (id_usuario, tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, fecha)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *
-        `, [parseInt(id_usuario), tipo_documento, documento_cliente, nombre_cliente,
-            parseFloat(monto_pago), parseFloat(monto_cambio), parseFloat(monto_total)]);
+    const nuevaVenta = ventaResult.rows[0];
 
-        const nuevaVenta = ventaResult.rows[0];
+    for (const detalle of detalles) {
+        const { id_producto, cantidad, precio_venta } = detalle;
+        const subtotal = parseFloat(precio_venta) * parseInt(cantidad);
 
-        for (const detalle of detalles) {
-            const { id_producto, cantidad, precio_venta } = detalle;
-            const subtotal = parseFloat(precio_venta) * parseInt(cantidad);
+        await client.query(`
+            INSERT INTO detalle_venta (id_venta, id_producto, precio_venta, cantidad, subtotal, fecha_registro)
+            VALUES ($1, $2, $3, $4, $5, NOW())
+        `, [nuevaVenta.id_venta, parseInt(id_producto), parseFloat(precio_venta), parseInt(cantidad), subtotal]);
 
-            const stockResult = await client.query(
-                'SELECT stock, nombre FROM producto WHERE id_producto = $1 FOR UPDATE',
-                [parseInt(id_producto)]
-            );
-            if (!stockResult.rows[0] || stockResult.rows[0].stock < parseInt(cantidad)) {
-                throw new Error(`Stock insuficiente para "${stockResult.rows[0]?.nombre || id_producto}"`);
-            }
-
-            await client.query(`
-                INSERT INTO detalle_venta (id_venta, id_producto, precio_venta, cantidad, subtotal, fecha_registro)
-                VALUES ($1, $2, $3, $4, $5, NOW())
-            `, [nuevaVenta.id_venta, parseInt(id_producto), parseFloat(precio_venta), parseInt(cantidad), subtotal]);
-
-            await client.query(`
-                UPDATE producto SET stock = stock - $1 WHERE id_producto = $2
-            `, [parseInt(cantidad), parseInt(id_producto)]);
-
-            await client.query(`
-                INSERT INTO registro_inventario (id_producto, tipo, cantidad, total, id_venta, id_usuario, fecha)
-                VALUES ($1, 'salida', $2, $3, $4, $5, NOW())
-            `, [parseInt(id_producto), parseInt(cantidad), subtotal, nuevaVenta.id_venta, parseInt(id_usuario)]);
-        }
-
-        await client.query('COMMIT');
-        return nuevaVenta;
-    } catch (error) {
-        await client.query('ROLLBACK');
-        throw error;
-    } finally {
-        client.release();
+        // Registramos el movimiento como 'salida' para trazabilidad y generación de reportes
+        await client.query(`
+            INSERT INTO registro_inventario (id_producto, tipo, cantidad, total, id_venta, id_usuario, fecha)
+            VALUES ($1, 'salida', $2, $3, $4, $5, NOW())
+        `, [parseInt(id_producto), parseInt(cantidad), subtotal, nuevaVenta.id_venta, parseInt(id_usuario)]);
     }
+
+    return nuevaVenta;
 };

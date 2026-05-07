@@ -1,6 +1,7 @@
 const db = require('../db/connection');
 
-exports.getAll = async (soloActivos = false) => {
+exports.obtenerProductos = async (soloActivos = false) => {
+    // IS NOT FALSE incluye también NULLs: productos sin estado definido se tratan como activos
     const filtro = soloActivos ? 'WHERE estado IS NOT FALSE' : '';
     const result = await db.query(`SELECT * FROM producto ${filtro} ORDER BY nombre`);
     return result.rows;
@@ -11,9 +12,10 @@ exports.getById = async (id) => {
     return result.rows[0];
 }
 
-exports.create = async (producto) => {
+exports.crearProducto = async (producto) => {
     const { nombre, descripcion, stock, precio_compra, precio_venta, id_categoria } = producto;
 
+    // Todo producto nuevo se crea activo (estado = true) por defecto
     const result = await db.query(`INSERT INTO producto
         (nombre, descripcion, stock, precio_compra, precio_venta, id_categoria, estado)
         VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING *`,
@@ -34,6 +36,7 @@ exports.update = async (id, producto) => {
     return result.rows[0];
 };
 
+// Baja lógica: se desactiva en lugar de eliminar para mantener integridad referencial con ventas
 exports.remove = async (id) => {
     const result = await db.query(
         'UPDATE producto SET estado = false WHERE id_producto = $1 RETURNING id_producto',
@@ -50,4 +53,12 @@ exports.setEstado = async (id, estado) => {
     );
     if (!result.rows[0]) throw new Error('Producto no encontrado');
     return result.rows[0];
+}
+
+exports.descuentaStock = async (client, id, cantidad) => {
+    const result = await client.query(`
+        UPDATE producto SET stock = stock - $1 WHERE id_producto = $2 RETURNING stock
+    `, [parseInt(cantidad), parseInt(id)]);
+    if (!result.rows[0]) throw new Error('Producto no encontrado');
+    return result.rows[0].stock;
 }

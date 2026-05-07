@@ -26,6 +26,9 @@ app.use('/api/movimientos', authenticateToken, movimientoRoutes);
 const reporteRoutes = require('./src/routes/reporteRoutes');
 app.use('/api/reportes', authenticateToken, reporteRoutes);
 
+const categoriaRoutes = require('./src/routes/categoriaRoutes');
+app.use('/api/categorias', authenticateToken, categoriaRoutes);
+
 //server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

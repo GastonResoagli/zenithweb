@@ -1,29 +1,19 @@
-const jwt = require('jsonwebtoken');
-const db = require('../db/connection');
+const authService = require('../services/authService');
+const { validarDatosLogin } = require('../utils/validators');
 
 exports.login = async (req, res) => {
     try {
+        // Valida datos según el diagrama
+        validarDatosLogin(req.body);
+
         const { usuario, password } = req.body;
+        const data = await authService.login(usuario, password);
 
-        const result = await db.query(
-            'SELECT * FROM usuario WHERE correo = $1 AND estado = true',
-            [usuario]
-        );
-
-        const user = result.rows[0];
-
-        if (!user || user.clave !== password) {
-            return res.status(401).json({ error: 'Credenciales incorrectas' });
-        }
-
-        const token = jwt.sign(
-            { id_usuario: user.id_usuario, correo: user.correo, rol: user.rol },
-            process.env.JWT_SECRET || 'secretkey',
-            { expiresIn: '8h' }
-        );
-
-        res.json({ token, rol: user.rol });
+        res.json(data);
     } catch (error) {
+        if (error.message === 'Usuario y contraseña son requeridos' || error.message === 'Credenciales incorrectas') {
+             return res.status(401).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

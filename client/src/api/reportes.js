@@ -5,6 +5,17 @@ const authHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
+export const getMovimientos = async (filtros) => {
+    const params = new URLSearchParams();
+    if (filtros.fechaDesde) params.set('fechaDesde', filtros.fechaDesde);
+    if (filtros.fechaHasta) params.set('fechaHasta', filtros.fechaHasta);
+    if (filtros.tipo)       params.set('tipo', filtros.tipo);
+
+    const res = await fetch(`${BASE}?${params}`, { headers: authHeaders() });
+    if (!res.ok) throw new Error('Error al obtener movimientos');
+    return res.json();
+};
+
 export const generarReporte = async (filtros) => {
     const res = await fetch(BASE, {
         method: 'POST',
@@ -15,11 +26,14 @@ export const generarReporte = async (filtros) => {
         const err = await res.json();
         throw new Error(err.error || 'Error al generar reporte');
     }
+
+    // Convertimos la respuesta binaria en un blob y disparamos la descarga automáticamente
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `reporte_${Date.now()}.pdf`;
     a.click();
+    // Liberamos la URL de objeto para evitar fuga de memoria
     URL.revokeObjectURL(url);
 };

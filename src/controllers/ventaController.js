@@ -1,8 +1,9 @@
 const ventaService = require('../services/ventaService');
+const { validarVenta } = require('../utils/validators');
 
-exports.getAll = async (req, res) => {
+exports.consultarVentas = async (req, res) => {
     try {
-        const data = await ventaService.getAll();
+        const data = await ventaService.consultarVentas();
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -19,13 +20,19 @@ exports.getById = async (req, res) => {
     }
 };
 
-exports.create = async (req, res) => {
+exports.agregarVenta = async (req, res) => {
     try {
+        validarVenta(req.body);
+        // Separamos los detalles de línea del resto de los datos de la venta
         const { detalles, ...venta } = req.body;
+        // El id_usuario se toma del token JWT para evitar suplantación de identidad
         venta.id_usuario = req.user.id_usuario;
-        const data = await ventaService.create(venta, detalles);
+        const data = await ventaService.creaVenta(venta, detalles);
         res.status(201).json(data);
     } catch (error) {
+        if (error.message.includes('venta debe tener')) {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

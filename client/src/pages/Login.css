@@ -1,0 +1,101 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bb-50);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 24rem; /* max-w-sm */
+  background-color: white;
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+  padding: 2rem; /* p-8 */
+  border: 1px solid var(--color-bb-100);
+}
+
+.login-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.login-title {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700; /* font-bold */
+  color: var(--color-bb-900);
+  margin: 0;
+}
+
+.login-subtitle {
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-bb-500);
+  margin-top: 0.25rem;
+}
+
+.alert-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem; /* p-3 */
+  font-size: 0.875rem; /* text-sm */
+  color: #b91c1c; /* text-red-700 */
+  background-color: #fef2f2; /* bg-red-50 */
+  border: 1px solid #fecaca; /* border-red-200 */
+  border-radius: 0.5rem; /* rounded-lg */
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* gap-4 */
+}
+
+.form-group {
+  display: block;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.25rem; /* mb-1 */
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: var(--color-bb-800);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* py-2 px-3 */
+  border: 1px solid var(--color-bb-200);
+  border-radius: 0.5rem; /* rounded-lg */
+  font-size: 0.875rem; /* text-sm */
+  color: var(--color-bb-900);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bb-400); /* ring-2 */
+  border-color: var(--color-bb-400);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.5rem 1rem; /* py-2 px-4 */
+  background-color: var(--color-bb-700);
+  color: white;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600; /* font-semibold */
+  border: none;
+  border-radius: 0.5rem; /* rounded-lg */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-bb-800);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

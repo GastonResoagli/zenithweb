@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/auth';
+import './Login.css';
 
 const Login = () => {
     const [usuario, setUsuario] = useState('');
@@ -26,46 +27,46 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-bb-50">
-            <div className="w-full max-w-sm bg-white rounded-xl shadow-md p-8 border border-bb-100">
-                <div className="mb-6 text-center">
-                    <h2 className="text-3xl font-bold text-bb-900">ZenithWeb</h2>
-                    <p className="text-sm text-bb-500 mt-1">Iniciá sesión para continuar</p>
+        <div className="login-page">
+            <div className="login-card">
+                <div className="login-header">
+                    <h2 className="login-title">ZenithWeb</h2>
+                    <p className="login-subtitle">Iniciá sesión para continuar</p>
                 </div>
 
                 {error && (
-                    <div className="mb-4 p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="alert-error">
                         {error}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <div>
-                        <label className="block mb-1 text-sm font-medium text-bb-800">Usuario</label>
+                <form onSubmit={handleSubmit} className="login-form">
+                    <div className="form-group">
+                        <label className="form-label">Usuario</label>
                         <input
                             type="text"
                             placeholder="correo@ejemplo.com"
                             value={usuario}
                             onChange={(e) => setUsuario(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-bb-200 rounded-lg text-sm text-bb-900 focus:outline-none focus:ring-2 focus:ring-bb-400 focus:border-bb-400"
+                            className="form-input"
                         />
                     </div>
-                    <div>
-                        <label className="block mb-1 text-sm font-medium text-bb-800">Contraseña</label>
+                    <div className="form-group">
+                        <label className="form-label">Contraseña</label>
                         <input
                             type="password"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="w-full px-3 py-2 border border-bb-200 rounded-lg text-sm text-bb-900 focus:outline-none focus:ring-2 focus:ring-bb-400 focus:border-bb-400"
+                            className="form-input"
                         />
                     </div>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-2 px-4 bg-bb-700 hover:bg-bb-800 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50"
+                        className="btn-primary"
                     >
                         {loading ? 'Ingresando...' : 'Ingresar'}
                     </button>

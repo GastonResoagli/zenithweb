@@ -1,11 +1,13 @@
 const BASE = 'http://localhost:3000/api/productos';
 
+// El token se lee de localStorage en cada llamada para reflejar siempre el valor actual
 const headers = () => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
 export const getAll = async ({ soloActivos = false } = {}) => {
+    // soloActivos=true filtra los productos dados de baja (usado en el formulario de ventas)
     const url = soloActivos ? `${BASE}?soloActivos=true` : BASE;
     const res = await fetch(url, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener productos');

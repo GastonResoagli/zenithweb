@@ -11,15 +11,4 @@ export const getAll = async () => {
     return res.json();
 };
 
-export const registrarEntrada = async ({ id_producto, cantidad, precio_compra }) => {
-    const res = await fetch(`${BASE}/entrada`, {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify({ id_producto, cantidad, precio_compra }),
-    });
-    if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Error al registrar entrada');
-    }
-    return res.json();
-};
+

@@ -1,5 +1,6 @@
 const BASE = 'http://localhost:3000/api/ventas';
 
+// El token se lee de localStorage en cada llamada para reflejar siempre el valor actual
 const headers = () => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -24,6 +25,7 @@ export const create = async (venta) => {
         body: JSON.stringify(venta),
     });
     if (!res.ok) {
+        // Propagamos el mensaje del servidor (ej: "Stock insuficiente") al componente
         const err = await res.json();
         throw new Error(err.error || 'Error al crear venta');
     }

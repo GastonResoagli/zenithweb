@@ -1,7 +1,4 @@
-@import "tailwindcss";
-@import "flowbite/src/themes/default";
-
-@theme {
+:root {
   --color-bb-50: #f2f8fd;
   --color-bb-100: #e4f0fa;
   --color-bb-200: #c4e1f3;
@@ -13,4 +10,14 @@
   --color-bb-800: #195073;
   --color-bb-900: #1a4460;
   --color-bb-950: #112b40;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--color-bb-50);
+}
+
+* {
+  box-sizing: border-box;
 }

@@ -1,9 +1,11 @@
 const productoService = require('../services/productoService');
+const { validarProducto } = require('../utils/validators');
 
-exports.getAll = async (req, res) => {
+exports.obtenerProductos = async (req, res) => {
     try {
+        // soloActivos=true lo usan vendedores para ver solo productos disponibles para vender
         const soloActivos = req.query.soloActivos === 'true';
-        const data = await productoService.getAll(soloActivos);
+        const data = await productoService.obtenerProductos(soloActivos);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -20,11 +22,15 @@ exports.getById = async (req, res) => {
     }
 };
 
-exports.create = async (req, res) => {
+exports.agregarProductos = async (req, res) => {
     try {
-        const data = await productoService.create(req.body);
+        validarProducto(req.body);
+        const data = await productoService.crearProducto(req.body);
         res.status(201).json(data);
     } catch (error) {
+        if (error.message.includes('requerido') || error.message.includes('válido')) {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };
@@ -51,6 +57,7 @@ exports.remove = async (req, res) => {
 exports.setEstado = async (req, res) => {
     try {
         const { estado } = req.body;
+        // Validamos explícitamente el tipo boolean para evitar conversiones implícitas de strings
         if (typeof estado !== 'boolean') {
             return res.status(400).json({ error: 'El campo estado debe ser true o false' });
         }
@@ -60,4 +67,3 @@ exports.setEstado = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
