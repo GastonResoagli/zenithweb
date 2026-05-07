@@ -20,18 +20,18 @@ const Ventas = () => {
     const [ventaDetalle, setVentaDetalle] = useState(null); // venta abierta en el modal de detalle
     const [error, setError] = useState('');
 
-    useEffect(() => { Promise.all([cargarVentas(), cargarProductos()]); }, []);
 
-    const cargarVentas = async () => {
+     const cargarVentas = async () => {
         try { setVentas(await getAll()); } catch { setError('Error al cargar ventas'); }
     };
 
+
     const cargarProductos = async () => {
-        // Solo se cargan productos activos para que el vendedor no pueda seleccionar productos dados de baja
-        try { setProductos(await getProductos({ soloActivos: true })); } catch {}
+        try { setProductos(await getProductos({ soloActivos: true })); } catch {setError('Error al cargar productos');}
     };
 
-    // Total calculado en el cliente para mostrar en tiempo real mientras se agregan productos
+     useEffect(() => { Promise.all([cargarVentas(), cargarProductos()]); }, []);
+
     const montoTotal = detalles.reduce((acc, d) => acc + d.subtotal, 0);
 
     const agregarDetalle = () => {

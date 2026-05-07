@@ -15,13 +15,14 @@ const Productos = () => {
     const [exito, setExito] = useState('');
     const [modalConfirm, setModalConfirm] = useState(null); // producto pendiente de cambio de estado
 
-    useEffect(() => { cargar(); }, []);
-
-    const cargar = async () => {
-        // Carga todos los productos (activos e inactivos) para gestión administrativa
+     const cargar = async () => {
         try { setProductos(await api.getAll()); }
         catch { setError('Error al cargar productos'); }
     };
+    
+    useEffect(() => { cargar(); }, []);
+
+    
 
     const pedirConfirmacion = (p) => {
         // Guardamos el producto completo para mostrar nombre y estado en el modal
