@@ -17,12 +17,12 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id_usuario: user.id_usuario, correo: user.correo },
+            { id_usuario: user.id_usuario, correo: user.correo, rol: user.rol },
             process.env.JWT_SECRET || 'secretkey',
             { expiresIn: '8h' }
         );
 
-        res.json({ token });
+        res.json({ token, rol: user.rol });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

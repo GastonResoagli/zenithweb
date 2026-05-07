@@ -44,6 +44,14 @@ exports.create = async (venta, detalles) => {
             const { id_producto, cantidad, precio_venta } = detalle;
             const subtotal = parseFloat(precio_venta) * parseInt(cantidad);
 
+            const stockResult = await client.query(
+                'SELECT stock, nombre FROM producto WHERE id_producto = $1 FOR UPDATE',
+                [parseInt(id_producto)]
+            );
+            if (!stockResult.rows[0] || stockResult.rows[0].stock < parseInt(cantidad)) {
+                throw new Error(`Stock insuficiente para "${stockResult.rows[0]?.nombre || id_producto}"`);
+            }
+
             await client.query(`
                 INSERT INTO detalle_venta (id_venta, id_producto, precio_venta, cantidad, subtotal, fecha_registro)
                 VALUES ($1, $2, $3, $4, $5, NOW())
@@ -52,6 +60,11 @@ exports.create = async (venta, detalles) => {
             await client.query(`
                 UPDATE producto SET stock = stock - $1 WHERE id_producto = $2
             `, [parseInt(cantidad), parseInt(id_producto)]);
+
+            await client.query(`
+                INSERT INTO registro_inventario (id_producto, tipo, cantidad, total, id_venta, id_usuario, fecha)
+                VALUES ($1, 'salida', $2, $3, $4, $5, NOW())
+            `, [parseInt(id_producto), parseInt(cantidad), subtotal, nuevaVenta.id_venta, parseInt(id_usuario)]);
         }
 
         await client.query('COMMIT');

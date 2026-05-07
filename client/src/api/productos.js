@@ -5,9 +5,20 @@ const headers = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
-export const getAll = async () => {
-    const res = await fetch(BASE, { headers: headers() });
+export const getAll = async ({ soloActivos = false } = {}) => {
+    const url = soloActivos ? `${BASE}?soloActivos=true` : BASE;
+    const res = await fetch(url, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener productos');
+    return res.json();
+};
+
+export const setEstado = async (id, estado) => {
+    const res = await fetch(`${BASE}/${id}/estado`, {
+        method: 'PATCH',
+        headers: headers(),
+        body: JSON.stringify({ estado }),
+    });
+    if (!res.ok) throw new Error('Error al actualizar estado');
     return res.json();
 };
 

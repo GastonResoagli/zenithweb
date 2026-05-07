@@ -1,32 +1,48 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 
+const linkClass = ({ isActive }) =>
+    `px-4 py-2 rounded text-sm font-medium transition-colors ${isActive ? 'bg-bb-500 text-white' : 'text-bb-100 hover:bg-bb-700'}`;
+
 const Navbar = () => {
     const navigate = useNavigate();
-    const logout = () => { localStorage.removeItem('token'); navigate('/login'); };
+    const rol = localStorage.getItem('rol');
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('rol');
+        navigate('/login');
+    };
 
     return (
-        <nav style={styles.nav}>
-            <span style={styles.brand}>ZenithWeb</span>
-            <div style={styles.links}>
-                <NavLink to="/productos" style={({ isActive }) => ({ ...styles.link, ...(isActive ? styles.linkActive : {}) })}>
-                    Productos
+        <nav className="bg-bb-800 px-6 py-3">
+            <div className="flex items-center justify-between">
+                <NavLink to="/dashboard" className="text-white text-xl font-bold tracking-wide hover:text-bb-200 transition-colors">
+                    ZenithWeb
                 </NavLink>
-                <NavLink to="/ventas" style={({ isActive }) => ({ ...styles.link, ...(isActive ? styles.linkActive : {}) })}>
-                    Ventas
-                </NavLink>
+                <div className="flex items-center gap-2">
+                    <NavLink to="/productos" className={linkClass}>
+                        Productos
+                    </NavLink>
+                    {(rol === 'gerente' || rol === 'vendedor') && (
+                        <NavLink to="/ventas" className={linkClass}>
+                            Ventas
+                        </NavLink>
+                    )}
+                    {rol === 'gerente' && (
+                        <NavLink to="/reportes" className={linkClass}>
+                            Reportes
+                        </NavLink>
+                    )}
+                    <button
+                        onClick={logout}
+                        className="ml-4 px-4 py-2 text-sm text-bb-100 border border-bb-600 rounded hover:bg-bb-700 transition-colors"
+                    >
+                        Cerrar sesión
+                    </button>
+                </div>
             </div>
-            <button style={styles.btnLogout} onClick={logout}>Cerrar sesión</button>
         </nav>
     );
-};
-
-const styles = {
-    nav: { display: 'flex', alignItems: 'center', gap: '24px', padding: '0 24px', height: '56px', backgroundColor: '#1677ff', color: '#fff' },
-    brand: { fontWeight: 'bold', fontSize: '18px', marginRight: 'auto' },
-    links: { display: 'flex', gap: '8px' },
-    link: { color: 'rgba(255,255,255,0.8)', textDecoration: 'none', padding: '6px 14px', borderRadius: '4px', fontSize: '14px' },
-    linkActive: { backgroundColor: 'rgba(255,255,255,0.2)', color: '#fff' },
-    btnLogout: { padding: '6px 14px', backgroundColor: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.5)', borderRadius: '4px', cursor: 'pointer', fontSize: '13px' },
 };
 
 export default Navbar;
