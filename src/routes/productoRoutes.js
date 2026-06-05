@@ -1,3 +1,4 @@
+// Rutas de productos (montadas en /api/productos).
 const express = require('express');
 const router = express.Router();
 const productoController = require('../controllers/productoController');

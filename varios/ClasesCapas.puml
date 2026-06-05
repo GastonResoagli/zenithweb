@@ -1,0 +1,152 @@
+@startuml ZenithWeb_Capas
+' Diagrama de Clases - Arquitectura en Capas (ZenithWeb)
+' Render: https://www.plantuml.com/plantuml  o  extension PlantUML en VS Code
+' Importar en draw.io: Arrange > Insert > Advanced > PlantUML...
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+left to right direction
+
+skinparam class {
+  BackgroundColor<<Application>> #E3F2FD
+  BackgroundColor<<Middleware>>  #FFF3E0
+  BackgroundColor<<Router>>      #F1F8E9
+  BackgroundColor<<Controller>>  #E8EAF6
+  BackgroundColor<<Service>>     #E0F2F1
+  BackgroundColor<<Repository>>  #FCE4EC
+  BackgroundColor<<Singleton>>   #ECEFF1
+  BackgroundColor<<Util>>        #FFFDE7
+}
+
+class ExpressApp <<Application>> {
+  +use(cors())
+  +use(json())
+  +listen(PORT)
+}
+
+class AuthMiddleware <<Middleware>> {
+  +authenticateToken(req, res, next)
+}
+class RoleMiddleware <<Middleware>> {
+  +authorizeRoles(...roles) : function
+}
+class Validators <<Util>> {
+  +validarDatosLogin(datos)
+  +validarProducto(datos)
+  +validarVenta(datos)
+}
+
+' ---- Routers ----
+class ProductoRoutes <<Router>>
+class VentaRoutes <<Router>>
+class AuthRoutes <<Router>>
+class ReporteRoutes <<Router>>
+
+' ---- Controllers ----
+class ProductoController <<Controller>> {
+  +obtenerProductos(req, res)
+  +getById(req, res)
+  +agregarProductos(req, res)
+  +update(req, res)
+  +remove(req, res)
+  +setEstado(req, res)
+}
+class VentaController <<Controller>> {
+  +consultarVentas(req, res)
+  +getById(req, res)
+  +agregarVenta(req, res)
+}
+class AuthController <<Controller>> {
+  +login(req, res)
+}
+class ReporteController <<Controller>> {
+  +getMovimientos(req, res)
+  +generarPDF(req, res)
+}
+
+' ---- Services ----
+class ProductoService <<Service>> {
+  +obtenerProductos(soloActivos)
+  +getById(id)
+  +crearProducto(producto)
+  +update(id, producto)
+  +remove(id)
+  +setEstado(id, estado)
+  +descuentaStock(client, id, cantidad)
+}
+class VentaService <<Service>> {
+  +consultarVentas()
+  +getById(id)
+  +creaVenta(venta, detalles)
+}
+class AuthService <<Service>> {
+  +login(usuario, password)
+}
+class ReporteService <<Service>> {
+  +getMovimientos(filtros)
+  +generarPDF(filtros)
+}
+
+' ---- Repositories ----
+class ProductoRepository <<Repository>> {
+  +obtenerProductos(soloActivos)
+  +getById(id)
+  +crearProducto(producto)
+  +update(id, producto)
+  +remove(id)
+  +setEstado(id, estado)
+  +descuentaStock(client, id, cantidad)
+}
+class VentaRepository <<Repository>> {
+  +consultarVentas()
+  +getById(id)
+  +crearVenta(client, venta, detalles)
+}
+class AuthRepository <<Repository>> {
+  +getUsuarioPorCorreo(correo)
+}
+class ReporteRepository <<Repository>> {
+  +getMovimientos(filtros)
+}
+
+class DBConnection <<Singleton>> {
+  -Pool pool
+  +query(sql, params)
+  +connect() : Client
+}
+
+' ---- Relaciones ----
+ExpressApp --> AuthMiddleware : usa
+ExpressApp --> ProductoRoutes
+ExpressApp --> VentaRoutes
+ExpressApp --> AuthRoutes
+ExpressApp --> ReporteRoutes
+
+ProductoRoutes ..> RoleMiddleware : protege
+ProductoRoutes --> ProductoController
+VentaRoutes --> VentaController
+AuthRoutes --> AuthController
+ReporteRoutes --> ReporteController
+
+ProductoController ..> Validators
+VentaController ..> Validators
+AuthController ..> Validators
+
+ProductoController --> ProductoService
+VentaController --> VentaService
+AuthController --> AuthService
+ReporteController --> ReporteService
+
+ProductoService --> ProductoRepository
+VentaService --> VentaRepository
+VentaService --> ProductoService : valida/descuenta stock
+AuthService --> AuthRepository
+ReporteService --> ReporteRepository
+ReporteService --> VentaService : datos del PDF
+
+ProductoRepository --> DBConnection
+VentaRepository --> DBConnection
+AuthRepository --> DBConnection
+ReporteRepository --> DBConnection
+
+@enduml

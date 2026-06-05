@@ -1,5 +1,7 @@
+// Controller de reportes.
 const reporteService = require('../services/reporteService');
 
+// GET /api/reportes -> movimientos filtrados (los filtros llegan por query string)
 exports.getMovimientos = async (req, res) => {
     try {
         const { fechaDesde, fechaHasta, tipo, id_producto } = req.query;
@@ -10,6 +12,7 @@ exports.getMovimientos = async (req, res) => {
     }
 };
 
+// POST /api/reportes -> genera el PDF del reporte y lo devuelve como archivo descargable
 exports.generarReportes = async (req, res) => {
     try {
         const { fechaDesde, fechaHasta, tipo, id_producto } = req.body;

@@ -1,3 +1,5 @@
+// Página del historial de movimientos de stock.
+// NOTA: este componente existe pero no está enlazado en App.jsx (no hay <Route> que lo use).
 import { useState, useEffect } from 'react';
 import { getAll } from '../api/movimientos';
 import './Movimientos.css';
@@ -6,6 +8,7 @@ const Movimientos = () => {
     const [movimientos, setMovimientos] = useState([]);
     const [error, setError] = useState('');
 
+    // Al montar el componente carga los movimientos una sola vez
     useEffect(() => { cargarMovimientos(); }, []);
 
     const cargarMovimientos = async () => {

@@ -1,3 +1,4 @@
+// Rutas de reportes (montadas en /api/reportes).
 const express = require('express');
 const router = express.Router();
 const reporteController = require('../controllers/reporteController');

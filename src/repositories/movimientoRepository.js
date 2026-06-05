@@ -1,5 +1,8 @@
+// Repository de movimientos de inventario.
 const db = require('../db/connection');
 
+// Historial de los últimos 100 movimientos, uniendo (JOIN) con producto y usuario
+// para mostrar el nombre del producto y de quién lo registró (no solo los IDs).
 exports.getAll = async () => {
     const result = await db.query(`
         SELECT ri.*, p.nombre AS nombre_producto, u.nombre_completo AS nombre_usuario

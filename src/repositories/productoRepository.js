@@ -1,5 +1,7 @@
+// Repository de productos: todas las consultas SQL sobre la tabla producto.
 const db = require('../db/connection');
 
+// Lista de productos. Si soloActivos=true, excluye los dados de baja.
 exports.obtenerProductos = async (soloActivos = false) => {
     // IS NOT FALSE incluye también NULLs: productos sin estado definido se tratan como activos
     const filtro = soloActivos ? 'WHERE estado IS NOT FALSE' : '';
@@ -7,11 +9,13 @@ exports.obtenerProductos = async (soloActivos = false) => {
     return result.rows;
 };
 
+// Un producto por su ID (undefined si no existe)
 exports.getById = async (id) => {
     const result = await db.query('SELECT * FROM producto WHERE id_producto = $1', [id]);
     return result.rows[0];
 }
 
+// Inserta un producto nuevo y devuelve la fila creada (RETURNING *)
 exports.crearProducto = async (producto) => {
     const { nombre, descripcion, stock, precio_compra, precio_venta, id_categoria } = producto;
 
@@ -24,6 +28,7 @@ exports.crearProducto = async (producto) => {
     return result.rows[0];
 }
 
+// Actualiza todos los campos editables de un producto existente
 exports.update = async (id, producto) => {
     const { nombre, descripcion, stock, precio_compra, precio_venta, id_categoria } = producto;
 
@@ -46,6 +51,7 @@ exports.remove = async (id) => {
     return { message: 'Producto dado de baja' };
 }
 
+// Activa o desactiva un producto (alta/baja según el booleano recibido)
 exports.setEstado = async (id, estado) => {
     const result = await db.query(
         'UPDATE producto SET estado = $1 WHERE id_producto = $2 RETURNING *',
@@ -55,6 +61,7 @@ exports.setEstado = async (id, estado) => {
     return result.rows[0];
 }
 
+// Resta unidades al stock. Usa "client" (no "db") porque corre dentro de la transacción de la venta.
 exports.descuentaStock = async (client, id, cantidad) => {
     const result = await client.query(`
         UPDATE producto SET stock = stock - $1 WHERE id_producto = $2 RETURNING stock

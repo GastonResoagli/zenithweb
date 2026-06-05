@@ -1,18 +1,21 @@
+// Página de reportes: consulta movimientos con filtros y permite descargar el PDF.
 import { useState } from 'react';
 import { getMovimientos, generarReporte } from '../api/reportes';
 import './Reportes.css';
 
 const Reportes = () => {
+    // Filtros del formulario
     const [fechaDesde, setFechaDesde] = useState('');
     const [fechaHasta, setFechaHasta] = useState('');
     const [tipo, setTipo] = useState('');
-    const [movimientos, setMovimientos] = useState(null);
+    const [movimientos, setMovimientos] = useState(null); // null = todavía no se consultó
     const [error, setError] = useState('');
-    const [cargando, setCargando] = useState(false);
-    const [descargando, setDescargando] = useState(false);
+    const [cargando, setCargando] = useState(false);      // mientras consulta la tabla
+    const [descargando, setDescargando] = useState(false);// mientras genera el PDF
 
     const filtros = { fechaDesde, fechaHasta, tipo: tipo || undefined };
 
+    // Consulta los movimientos según los filtros y los muestra en la tabla
     const handleConsultar = async (e) => {
         e.preventDefault();
         setError('');
@@ -27,6 +30,7 @@ const Reportes = () => {
         }
     };
 
+    // Descarga el PDF del reporte con los filtros actuales
     const handleDescargar = async () => {
         setError('');
         setDescargando(true);
@@ -39,6 +43,7 @@ const Reportes = () => {
         }
     };
 
+    // Calcula las métricas de resumen (totales y montos) a partir de los movimientos consultados
     const stats = movimientos ? {
         totalRegistros:  movimientos.length,
         unidadesEntrada: movimientos.filter(m => m.tipo === 'entrada').reduce((s, m) => s + Number(m.cantidad), 0),

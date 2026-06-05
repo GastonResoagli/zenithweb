@@ -1,8 +1,10 @@
+// Página de ABM (alta/baja/modificación) de productos.
 import { useState, useEffect } from 'react';
 import * as api from '../api/productos';
 import './Productos.css';
 const { setEstado } = api;
 
+// Valores iniciales del formulario (campos en blanco)
 const camposVacios = {
     nombre: '', descripcion: '', stock: '', precio_compra: '', precio_venta: '', id_categoria: '',
 };
@@ -10,19 +12,21 @@ const camposVacios = {
 const Productos = () => {
     const [productos, setProductos] = useState([]);
     const [formulario, setFormulario] = useState(null); // 'nuevo' | 'editar' | null
-    const [datos, setDatos] = useState(camposVacios);
+    const [datos, setDatos] = useState(camposVacios);   // datos del producto en edición/creación
     const [error, setError] = useState('');
     const [exito, setExito] = useState('');
     const [modalConfirm, setModalConfirm] = useState(null); // producto pendiente de cambio de estado
 
+    // Trae la lista de productos del backend y la guarda en el estado
      const cargar = async () => {
         try { setProductos(await api.getAll()); }
         catch { setError('Error al cargar productos'); }
     };
-    
+
+    // Carga inicial al montar la página
     useEffect(() => { cargar(); }, []);
 
-    
+
 
     const pedirConfirmacion = (p) => {
         // Guardamos el producto completo para mostrar nombre y estado en el modal
@@ -39,11 +43,13 @@ const Productos = () => {
         } catch { setError('Error al cambiar el estado del producto'); }
     };
 
+    // Helpers para abrir/cerrar el formulario y actualizar sus campos
     const abrirNuevo = () => { setDatos(camposVacios); setFormulario('nuevo'); setError(''); setExito(''); };
     const abrirEditar = (p) => { setDatos(p); setFormulario('editar'); setError(''); setExito(''); };
     const cerrar = () => { setFormulario(null); setError(''); setExito(''); };
     const handleChange = (e) => setDatos({ ...datos, [e.target.name]: e.target.value });
 
+    // Guarda el formulario: crea o actualiza según el modo, recarga la lista y cierra
     const guardar = async (e) => {
         e.preventDefault();
         try {

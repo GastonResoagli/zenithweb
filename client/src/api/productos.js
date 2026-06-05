@@ -1,3 +1,4 @@
+// Cliente HTTP para el CRUD de productos.
 const BASE = 'http://localhost:3000/api/productos';
 
 // El token se lee de localStorage en cada llamada para reflejar siempre el valor actual
@@ -6,6 +7,7 @@ const headers = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
+// Lista de productos (GET); soloActivos filtra los dados de baja
 export const getAll = async ({ soloActivos = false } = {}) => {
     // soloActivos=true filtra los productos dados de baja (usado en el formulario de ventas)
     const url = soloActivos ? `${BASE}?soloActivos=true` : BASE;
@@ -14,6 +16,7 @@ export const getAll = async ({ soloActivos = false } = {}) => {
     return res.json();
 };
 
+// Activa/desactiva un producto (PATCH alta/baja)
 export const setEstado = async (id, estado) => {
     const res = await fetch(`${BASE}/${id}/estado`, {
         method: 'PATCH',
@@ -24,6 +27,7 @@ export const setEstado = async (id, estado) => {
     return res.json();
 };
 
+// Crea un producto (POST)
 export const create = async (producto) => {
     const res = await fetch(BASE, {
         method: 'POST',
@@ -34,6 +38,7 @@ export const create = async (producto) => {
     return res.json();
 };
 
+// Actualiza un producto existente (PUT)
 export const update = async (id, producto) => {
     const res = await fetch(`${BASE}/${id}`, {
         method: 'PUT',
@@ -44,6 +49,7 @@ export const update = async (id, producto) => {
     return res.json();
 };
 
+// Baja lógica del producto (DELETE)
 export const remove = async (id) => {
     const res = await fetch(`${BASE}/${id}`, {
         method: 'DELETE',

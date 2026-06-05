@@ -1,12 +1,15 @@
+// Página principal tras el login: muestra accesos a los módulos según el rol.
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
+// Etiquetas legibles para cada rol (lo que se muestra en pantalla)
 const ROLES_LABELS = {
     gerente: 'Gerente',
     operador_stock: 'Operador de Stock',
     vendedor: 'Vendedor',
 };
 
+// Definición de los módulos disponibles. Cada uno declara qué roles pueden verlo.
 const MODULOS = [
     {
         id: 'productos',
@@ -49,6 +52,7 @@ const MODULOS = [
 const Dashboard = () => {
     const navigate = useNavigate();
     const rol = localStorage.getItem('rol');
+    // Filtra los módulos para mostrar solo los permitidos al rol del usuario logueado
     const modulos = MODULOS.filter(m => m.roles.includes(rol));
 
     return (

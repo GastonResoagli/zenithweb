@@ -1,8 +1,10 @@
+// Página de ventas: lista las ventas y permite registrar nuevas.
 import { useState, useEffect } from 'react';
 import { getAll, getById, create } from '../api/ventas';
 import { getAll as getProductos } from '../api/productos';
 import './Ventas.css';
 
+// Datos por defecto de una venta nueva
 const ventaVacia = {
     tipo_documento: 'BOLETA',
     documento_cliente: '',
@@ -12,11 +14,11 @@ const ventaVacia = {
 const Ventas = () => {
     const [ventas, setVentas] = useState([]);
     const [productos, setProductos] = useState([]);
-    const [formulario, setFormulario] = useState(false);
+    const [formulario, setFormulario] = useState(false);    // muestra/oculta el form de nueva venta
     const [datosVenta, setDatosVenta] = useState(ventaVacia);
     const [detalles, setDetalles] = useState([]);       // líneas de la venta en curso
-    const [productoSel, setProductoSel] = useState('');
-    const [cantidadSel, setCantidadSel] = useState(1);
+    const [productoSel, setProductoSel] = useState('');     // producto elegido para agregar
+    const [cantidadSel, setCantidadSel] = useState(1);      // cantidad elegida para agregar
     const [ventaDetalle, setVentaDetalle] = useState(null); // venta abierta en el modal de detalle
     const [error, setError] = useState('');
 
@@ -26,14 +28,18 @@ const Ventas = () => {
     };
 
 
+    // Solo productos activos: no se puede vender algo dado de baja
     const cargarProductos = async () => {
         try { setProductos(await getProductos({ soloActivos: true })); } catch {setError('Error al cargar productos');}
     };
 
+     // Carga inicial en paralelo de ventas y productos
      useEffect(() => { Promise.all([cargarVentas(), cargarProductos()]); }, []);
 
+    // Total de la venta en curso: suma de los subtotales de cada línea
     const montoTotal = detalles.reduce((acc, d) => acc + d.subtotal, 0);
 
+    // Agrega el producto seleccionado a las líneas de la venta
     const agregarDetalle = () => {
         if (!productoSel) return;
         const producto = productos.find(p => p.id_producto === parseInt(productoSel));
@@ -59,8 +65,10 @@ const Ventas = () => {
         setCantidadSel(1);
     };
 
+    // Elimina una línea de la venta en curso
     const quitarDetalle = (id) => setDetalles(detalles.filter(d => d.id_producto !== id));
 
+    // Confirma y envía la venta al backend
     const guardarVenta = async (e) => {
         e.preventDefault();
         setError('');
@@ -75,6 +83,7 @@ const Ventas = () => {
         } catch (err) { setError(err.message); }
     };
 
+    // Abre el modal con el detalle completo de una venta ya registrada
     const verDetalle = async (id) => {
         try { setVentaDetalle(await getById(id)); } catch { setError('Error al cargar detalle'); }
     };

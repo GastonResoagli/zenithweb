@@ -1,6 +1,8 @@
+// Controller de ventas.
 const ventaService = require('../services/ventaService');
 const { validarVenta } = require('../utils/validators');
 
+// GET /api/ventas -> listado de ventas (con cantidad de ítems por venta)
 exports.consultarVentas = async (req, res) => {
     try {
         const data = await ventaService.consultarVentas();
@@ -10,6 +12,7 @@ exports.consultarVentas = async (req, res) => {
     }
 };
 
+// GET /api/ventas/:id -> una venta con el detalle de sus productos
 exports.getById = async (req, res) => {
     try {
         const data = await ventaService.getById(req.params.id);
@@ -20,6 +23,7 @@ exports.getById = async (req, res) => {
     }
 };
 
+// POST /api/ventas -> registra una venta nueva con sus líneas de detalle
 exports.agregarVenta = async (req, res) => {
     try {
         validarVenta(req.body);

@@ -1,3 +1,4 @@
+// Componente raíz: define el ruteo de toda la aplicación.
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -10,7 +11,10 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* Ruta pública: login */}
                 <Route path="/login" element={<Login />} />
+
+                {/* Rutas privadas: PrivateRoute exige token; allowedRoles restringe por rol */}
                 <Route path="/dashboard" element={
                     <PrivateRoute><Dashboard /></PrivateRoute>
                 } />
@@ -23,6 +27,8 @@ function App() {
                 <Route path="/reportes" element={
                     <PrivateRoute allowedRoles={['gerente']}><Reportes /></PrivateRoute>
                 } />
+
+                {/* Cualquier otra URL redirige al dashboard */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
         </BrowserRouter>

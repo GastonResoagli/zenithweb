@@ -1,5 +1,7 @@
+// Repository de reportes: consulta de movimientos con filtros dinámicos.
 const db = require('../db/connection');
 
+// Devuelve los movimientos de inventario que cumplen los filtros recibidos (todos opcionales)
 exports.getMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) => {
     // Para salidas mostramos el nombre del cliente; para entradas, el operador que las registró
     let query = `

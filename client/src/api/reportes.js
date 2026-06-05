@@ -1,3 +1,4 @@
+// Cliente HTTP para reportes.
 const BASE = 'http://localhost:3000/api/reportes';
 
 const authHeaders = () => ({
@@ -5,6 +6,7 @@ const authHeaders = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`,
 });
 
+// Consulta movimientos filtrados. Arma el query string solo con los filtros que tengan valor.
 export const getMovimientos = async (filtros) => {
     const params = new URLSearchParams();
     if (filtros.fechaDesde) params.set('fechaDesde', filtros.fechaDesde);
@@ -16,6 +18,7 @@ export const getMovimientos = async (filtros) => {
     return res.json();
 };
 
+// Pide el PDF al backend y dispara su descarga en el navegador
 export const generarReporte = async (filtros) => {
     const res = await fetch(BASE, {
         method: 'POST',

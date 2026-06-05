@@ -1,3 +1,4 @@
+// Rutas de ventas (montadas en /api/ventas).
 const express = require('express');
 const router = express.Router();
 const ventaController = require('../controllers/ventaController');
