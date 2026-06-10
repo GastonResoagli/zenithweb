@@ -1,5 +1,7 @@
 // Cliente HTTP para el endpoint de autenticación.
-const BASE = 'http://localhost:3000/api/auth';
+// La URL del backend viene de VITE_API_URL (configurada en Vercel). En local cae a localhost.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = `${API_URL}/api/auth`;
 
 // Envía las credenciales al backend; si son correctas devuelve { token, rol }
 export const login = async (usuario, password) => {

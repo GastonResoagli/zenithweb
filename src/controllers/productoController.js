@@ -36,6 +36,10 @@ exports.agregarProductos = async (req, res) => {
         if (error.message.includes('requerido') || error.message.includes('válido')) {
             return res.status(400).json({ error: error.message });
         }
+        // Nombre duplicado -> 409 (conflicto)
+        if (error.message.includes('Ya existe')) {
+            return res.status(409).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };
@@ -47,6 +51,10 @@ exports.update = async (req, res) => {
         if (!data) return res.status(404).json({ error: 'Producto no encontrado' });
         res.json(data);
     } catch (error) {
+        // Nombre duplicado -> 409 (conflicto)
+        if (error.message.includes('Ya existe')) {
+            return res.status(409).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

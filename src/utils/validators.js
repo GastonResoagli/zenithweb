@@ -26,3 +26,11 @@ exports.validarVenta = (datos) => {
         throw new Error('La venta debe tener al menos un producto');
     }
 };
+
+// Categoría: la descripción es obligatoria
+exports.validarCategoria = (datos) => {
+    const { descripcion } = datos;
+    if (!descripcion || !descripcion.trim()) {
+        throw new Error('La descripción de la categoría es requerida');
+    }
+};

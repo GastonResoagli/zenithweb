@@ -9,12 +9,20 @@ exports.getById = (id) => {
     return productoRepository.getById(id);
 }
 
-exports.crearProducto = (producto) => {
-    // Las validaciones se hacen en el controller (utils/validators), acá solo se persiste
+exports.crearProducto = async (producto) => {
+    // Chequeo previo de duplicado para devolver un mensaje claro; el índice único
+    // de la base es la garantía final (ver crearProducto del repository).
+    const existente = await productoRepository.getPorNombre(producto.nombre);
+    if (existente) throw new Error('Ya existe un producto con ese nombre');
     return productoRepository.crearProducto(producto);
 }
 
-exports.update = (id, producto) => {
+exports.update = async (id, producto) => {
+    // Permite conservar el mismo nombre del propio producto, pero no tomar el de otro
+    const existente = await productoRepository.getPorNombre(producto.nombre);
+    if (existente && existente.id_producto !== parseInt(id)) {
+        throw new Error('Ya existe un producto con ese nombre');
+    }
     return productoRepository.update(id, producto);
 }
 

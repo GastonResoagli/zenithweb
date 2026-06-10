@@ -1,5 +1,7 @@
 // Cliente HTTP para ventas.
-const BASE = 'http://localhost:3000/api/ventas';
+// La URL del backend viene de VITE_API_URL (configurada en Vercel). En local cae a localhost.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = `${API_URL}/api/ventas`;
 
 // El token se lee de localStorage en cada llamada para reflejar siempre el valor actual
 const headers = () => ({

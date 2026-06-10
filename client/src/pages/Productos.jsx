@@ -1,6 +1,7 @@
 // Página de ABM (alta/baja/modificación) de productos.
 import { useState, useEffect } from 'react';
 import * as api from '../api/productos';
+import * as catApi from '../api/categorias';
 import './Productos.css';
 const { setEstado } = api;
 
@@ -11,11 +12,15 @@ const camposVacios = {
 
 const Productos = () => {
     const [productos, setProductos] = useState([]);
+    const [categorias, setCategorias] = useState([]); // categorías para el selector y la tabla
     const [formulario, setFormulario] = useState(null); // 'nuevo' | 'editar' | null
     const [datos, setDatos] = useState(camposVacios);   // datos del producto en edición/creación
     const [error, setError] = useState('');
     const [exito, setExito] = useState('');
     const [modalConfirm, setModalConfirm] = useState(null); // producto pendiente de cambio de estado
+    const [catForm, setCatForm] = useState(false);      // muestra/oculta el alta de categoría
+    const [nuevaCat, setNuevaCat] = useState('');       // descripción de la categoría a crear
+    const [catError, setCatError] = useState('');       // error específico del alta de categoría
 
     // Trae la lista de productos del backend y la guarda en el estado
      const cargar = async () => {
@@ -23,8 +28,31 @@ const Productos = () => {
         catch { setError('Error al cargar productos'); }
     };
 
+    // Trae las categorías (para el selector del formulario y mostrar el nombre en la tabla)
+    const cargarCategorias = async () => {
+        try { setCategorias(await catApi.getAll()); }
+        catch { /* el selector quedará vacío si falla */ }
+    };
+
+    // Devuelve la descripción de una categoría a partir de su ID (para la tabla)
+    const nombreCategoria = (id) =>
+        categorias.find(c => c.id_categoria === Number(id))?.descripcion ?? id;
+
     // Carga inicial al montar la página
-    useEffect(() => { cargar(); }, []);
+    useEffect(() => { cargar(); cargarCategorias(); }, []);
+
+    // Crea una categoría nueva y refresca el selector; muestra el aviso si está duplicada
+    const guardarCategoria = async (e) => {
+        e.preventDefault();
+        setCatError('');
+        try {
+            await catApi.create(nuevaCat);
+            setNuevaCat('');
+            setCatForm(false);
+            await cargarCategorias();
+            setExito('Categoría creada correctamente');
+        } catch (err) { setCatError(err.message); }
+    };
 
 
 
@@ -60,22 +88,55 @@ const Productos = () => {
         } catch (err) { setError(err.message); }
     };
 
-    const inputClass = "w-full px-3 py-2 border border-bb-200 rounded-lg text-sm text-bb-900 focus:outline-none focus:ring-2 focus:ring-bb-400 focus:border-bb-400";
-
     return (
         <div className="page-container">
             <div className="page-header">
                 <h2 className="page-title">Productos</h2>
-                <button
-                    onClick={abrirNuevo}
-                    className="btn-primary-sm"
-                >
-                    + Nuevo Producto
-                </button>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        onClick={() => { setCatForm(true); setNuevaCat(''); setCatError(''); }}
+                        className="btn-secondary"
+                    >
+                        + Nueva Categoría
+                    </button>
+                    <button
+                        onClick={abrirNuevo}
+                        className="btn-primary-sm"
+                    >
+                        + Nuevo Producto
+                    </button>
+                </div>
             </div>
 
             {error && <div className="alert-error">{error}</div>}
             {exito && <div className="alert-success">{exito}</div>}
+
+            {/* Formulario de alta de categoría */}
+            {catForm && (
+                <div className="card">
+                    <h3 className="card-title">Nueva categoría</h3>
+                    {catError && <div className="alert-error">{catError}</div>}
+                    <form onSubmit={guardarCategoria}>
+                        <div className="form-group">
+                            <label className="form-label">Descripción</label>
+                            <input
+                                name="descripcion"
+                                value={nuevaCat}
+                                onChange={(e) => setNuevaCat(e.target.value)}
+                                required
+                                className="form-input"
+                                placeholder="Ej: Paneles monocristalinos"
+                            />
+                        </div>
+                        <div className="form-actions">
+                            <button type="submit" className="btn-primary">Guardar</button>
+                            <button type="button" onClick={() => setCatForm(false)} className="btn-secondary">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
 
             {/* Formulario de creación y edición de producto */}
             {formulario && (
@@ -91,18 +152,35 @@ const Productos = () => {
                                 { name: 'stock', label: 'Stock', type: 'number' },
                                 { name: 'precio_compra', label: 'Precio compra', type: 'number' },
                                 { name: 'precio_venta', label: 'Precio venta', type: 'number' },
-                                { name: 'id_categoria', label: 'Categoría (ID)', type: 'number' },
+                                { name: 'id_categoria', label: 'Categoría', type: 'select' },
                             ].map(({ name, label, type = 'text' }) => (
                                 <div key={name} className="form-group">
                                     <label className="form-label">{label}</label>
-                                    <input
-                                        name={name}
-                                        type={type}
-                                        value={datos[name]}
-                                        onChange={handleChange}
-                                        required
-                                        className="form-input"
-                                    />
+                                    {type === 'select' ? (
+                                        <select
+                                            name={name}
+                                            value={datos[name]}
+                                            onChange={handleChange}
+                                            required
+                                            className="form-input"
+                                        >
+                                            <option value="">Seleccionar categoría...</option>
+                                            {categorias.map(c => (
+                                                <option key={c.id_categoria} value={c.id_categoria}>
+                                                    {c.descripcion}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            name={name}
+                                            type={type}
+                                            value={datos[name]}
+                                            onChange={handleChange}
+                                            required
+                                            className="form-input"
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -153,7 +231,7 @@ const Productos = () => {
                                 </td>
                                 <td>${p.precio_compra}</td>
                                 <td style={{fontWeight: 500, color: 'var(--color-bb-700)'}}>${p.precio_venta}</td>
-                                <td>{p.id_categoria}</td>
+                                <td>{nombreCategoria(p.id_categoria)}</td>
                                 <td className="actions-cell">
                                     {activo && (
                                         <button onClick={() => abrirEditar(p)} className="action-btn edit">

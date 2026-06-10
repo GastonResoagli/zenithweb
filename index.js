@@ -6,7 +6,9 @@ require('dotenv').config(); // carga las variables de entorno definidas en el ar
 const app = express();
 
 // Middlewares globales
-app.use(cors());            // habilita peticiones desde otro origen (el frontend de React)
+// En producción se restringe el CORS al dominio del frontend (FRONTEND_URL, ej: la URL de Vercel).
+// En local, si FRONTEND_URL no está definida, se permiten todos los orígenes.
+app.use(cors(process.env.FRONTEND_URL ? { origin: process.env.FRONTEND_URL } : {}));
 app.use(express.json());    // parsea el body JSON de las peticiones entrantes
 
 

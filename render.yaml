@@ -1,0 +1,25 @@
+# ============================================================================
+# Blueprint de Render para el BACKEND (Express) — ZenithWeb
+# ----------------------------------------------------------------------------
+# Render detecta este archivo al crear un "Blueprint" desde el repo.
+# El frontend NO va acá: se despliega en Vercel apuntando a la carpeta client/.
+# Las variables marcadas sync:false se cargan a mano en el panel de Render.
+# ============================================================================
+services:
+  - type: web
+    name: zenithweb-api
+    runtime: node
+    plan: free
+    # El backend está en la raíz del repo (index.js)
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # Connection string del pooler de Supabase (puerto 6543). Cargar en Render.
+      - key: DATABASE_URL
+        sync: false
+      # Dominio del frontend en Vercel para restringir el CORS.
+      - key: FRONTEND_URL
+        sync: false
+      # Secreto para firmar los JWT.
+      - key: JWT_SECRET
+        sync: false

@@ -1,5 +1,7 @@
 // Cliente HTTP para el CRUD de productos.
-const BASE = 'http://localhost:3000/api/productos';
+// La URL del backend viene de VITE_API_URL (configurada en Vercel). En local cae a localhost.
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE = `${API_URL}/api/productos`;
 
 // El token se lee de localStorage en cada llamada para reflejar siempre el valor actual
 const headers = () => ({
@@ -27,26 +29,28 @@ export const setEstado = async (id, estado) => {
     return res.json();
 };
 
-// Crea un producto (POST)
+// Crea un producto (POST). Propaga el mensaje del backend (p. ej. nombre duplicado).
 export const create = async (producto) => {
     const res = await fetch(BASE, {
         method: 'POST',
         headers: headers(),
         body: JSON.stringify(producto),
     });
-    if (!res.ok) throw new Error('Error al crear producto');
-    return res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Error al crear producto');
+    return data;
 };
 
-// Actualiza un producto existente (PUT)
+// Actualiza un producto existente (PUT). Propaga el mensaje del backend.
 export const update = async (id, producto) => {
     const res = await fetch(`${BASE}/${id}`, {
         method: 'PUT',
         headers: headers(),
         body: JSON.stringify(producto),
     });
-    if (!res.ok) throw new Error('Error al actualizar producto');
-    return res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar producto');
+    return data;
 };
 
 // Baja lógica del producto (DELETE)
