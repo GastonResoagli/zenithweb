@@ -1,6 +1,6 @@
-# 🌞 Sistema de Gestión de Stock de Paneles Solares
+#Sistema de Gestión de Stock de Paneles Solares
 
-## 📌 Descripción
+##Descripción
 
 Este proyecto consiste en el desarrollo de un sistema web orientado a la gestión eficiente del stock de paneles solares para pequeñas y medianas empresas.
 
@@ -8,7 +8,7 @@ El sistema permite controlar inventario, gestionar usuarios, registrar movimient
 
 ---
 
-## 🎯 Objetivo General
+##Objetivo General
 
 Desarrollar una aplicación web que permita:
 
@@ -19,39 +19,39 @@ Desarrollar una aplicación web que permita:
 
 ---
 
-## 🚀 Funcionalidades principales
+##Funcionalidades principales
 
-### 📦 Gestión de Productos
+###Gestión de Productos
 
 * Alta, baja y modificación de productos
 * Asociación con categorías y proveedores
 
-### 📊 Gestión de Stock
+###Gestión de Stock
 
 * Registro de entradas de stock
 * Registro de salidas de stock
 * Control automático de inventario
 * Alertas por stock mínimo
 
-### 🧾 Movimientos e Historial
+###Movimientos e Historial
 
 * Registro de ventas
 * Historial completo de movimientos
 * Trazabilidad por usuario y fecha
 
-### 📈 Reportes
+###Reportes
 
 * Generación de reportes en:
 
   * PDF
   * Excel
-  * 
+    
 * Filtros por:
   * Producto
   * Categoría
   * Rango de fechas
 
-### 🔐 Seguridad
+###Seguridad
 
 * Autenticación de usuarios
 * Roles:
@@ -61,21 +61,21 @@ Desarrollar una aplicación web que permita:
   * Vendedor
 * Control de acceso por permisos
 
-### 🏢 Gestión de Proveedores
+###Gestión de Proveedores
 
 * Alta, baja y modificación de proveedores
 * Asociación con productos
 
 ---
 
-## 🧱 Arquitectura
+##Arquitectura
 
 El sistema sigue una arquitectura:
 
 * Cliente - Servidor
 * N-Tier (por capas)
 
-### 🔹 Capas del sistema
+###Capas del sistema
 
 * **Frontend (Presentación):**
 
@@ -95,30 +95,30 @@ El sistema sigue una arquitectura:
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+##Tecnologías utilizadas
 
-### 💻 Frontend
+###Frontend
 
 * React
 * Tailwind CSS
 * Flowbite
 * Vite
 
-### ⚙️ Backend
+###Backend
 
 * Node.js
 * Express
 
-### 🗄️ Base de Datos
+###Base de Datos
 
 * PostgreSQL
 
 
-### ☁️ Infraestructura
+###Infraestructura
 
 * Railway / Supabase
 
-### 🤝 Colaboración
+###Colaboración
 
 * GitHub
 * Trello
@@ -126,16 +126,16 @@ El sistema sigue una arquitectura:
 
 ---
 
-## ⚙️ Instalación y ejecución
+##Instalación y ejecución
 
-### 🔹 1. Clonar el repositorio
+###1. Clonar el repositorio
 
 ```
-git clone https://github.com/tu-usuario/tu-repo.git
+git clone https://github.com/GastonResoagli/zenithweb
 cd tu-repo
 ```
 
-### 🔹 2. Configurar variables de entorno
+###2. Configurar variables de entorno
 
 Crear archivo `.env` en backend:
 
@@ -147,19 +147,19 @@ DB_NAME=stock_db
 JWT_SECRET=secret_key
 ```
 
-### 🔹 3. Instalar dependencias
+###3. Instalar dependencias
 
 ```
 npm install
 ```
 
-### 🔹 4. Levantar el backend
+###4. Levantar el backend
 
 ```
 npm run dev
 ```
 
-### 🔹 5. Levantar el frontend
+###5. Levantar el frontend
 
 ```
 npm run dev
@@ -167,7 +167,7 @@ npm run dev
 
 ---
 
-## 🗄️ Base de datos
+##Base de datos
 
 Para crear la base de datos:
 
@@ -177,11 +177,11 @@ psql -U postgres -d stock_db -f database/schema.sql
 
 ---
 
-## 🔄 Metodología de desarrollo
+## Metodología de desarrollo
 
 Se utilizó un enfoque ágil basado en **Scrum** con modelo incremental.
 
-### 📅 Sprints
+###Sprints
 
 * **Sprint 1:** Configuración inicial + Login + Roles
 * **Sprint 2:** ABM de productos + stock básico
@@ -190,20 +190,9 @@ Se utilizó un enfoque ágil basado en **Scrum** con modelo incremental.
 
 ---
 
-
-## 📊 Estado del proyecto
-
-🚧 En desarrollo
-
----
-
-## 👥 Integrantes
+##Integrantes
 
 * Matías Lago
 * Gastón Resoagli
 
 ---
-
-## 📚 Licencia
-
-Este proyecto es de uso académico.
