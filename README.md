@@ -126,56 +126,123 @@ El sistema sigue una arquitectura:
 
 ---
 
-## Instalación y ejecución
+## Requisitos previos Para instalacion
 
-### 1. Clonar el repositorio
+- Node.js 18 o superior (verificar con: `node -v`)
+- PostgreSQL instalado y corriendo
+- El código del proyecto descargado
+
+## Configuración de variables de entorno
+
+El proyecto tiene dos partes y cada una usa su propio archivo `.env`
+(no se suben al repositorio, hay que crearlos a mano).
+
+### 1) Backend — archivo `.env` en la raíz del proyecto
 
 ```
-git clone https://github.com/GastonResoagli/zenithweb
-cd tu-repo
-```
-
-### 2. Configurar variables de entorno
-
-Crear archivo `.env` en backend:
-
-```
-DB_HOST=localhost
 DB_USER=postgres
-DB_PASSWORD=tu_password
-DB_NAME=stock_db
-JWT_SECRET=secret_key
+DB_HOST=localhost
+DB_NAME=control_stock
+DB_PASSWORD=TU_CONTRASEÑA_DE_POSTGRES
+DB_PORT=5432
+JWT_SECRET=zenithweb-secreto-local
 ```
 
-### 3. Instalar dependencias
+- `DB_NAME` debe coincidir con la base que crees en el paso siguiente.
+- `JWT_SECRET` puede ser cualquier texto; firma el token de login.
+
+### 2) Frontend — archivo `client/.env`
 
 ```
+VITE_API_URL=http://localhost:3000
+```
+
+Le indica al frontend dónde está el backend (puerto por defecto: 3000).
+
+## Crear y cargar la base de datos
+
+1. Crear la base vacía (desde psql o pgAdmin):
+
+   ```sql
+   CREATE DATABASE control_stock;
+   ```
+
+2. Cargar el esquema completo y los datos de ejemplo de una sola vez:
+
+   ```bash
+   psql -U postgres -d control_stock -f src/db/setup_completo.sql
+   ```
+
+   Crea todas las tablas, funciones e índices, y carga datos de ejemplo
+   (7 categorías, 16 productos, 5 ventas).
+
+## Levantar el proyecto
+
+**Backend** (desde la raíz):
+
+```bash
 npm install
+npm start
 ```
+Debe mostrar: `servidor corriendo en puerto 3000`
 
-### 4. Levantar el backend
+**Frontend** (en otra terminal):
 
-```
+```bash
+cd client
+npm install
 npm run dev
 ```
+Abrir la URL que muestra (normalmente http://localhost:5173).
 
-### 5. Levantar el frontend
+## Usuarios de prueba
+
+| Correo               | Contraseña   | Rol            |
+|----------------------|--------------|----------------|
+| admin@zenith.com     | admin123     | vendedor       |
+| gerente@zenith.com   | gerente123   | gerente        |
+| operador@zenith.com  | operador123  | operador_stock |
+| vendedor@zenith.com  | vendedor123  | vendedor       |
+
+## Patrones de diseño aplicados
+
+El sistema implementa tres patrones de diseño:
+
+- **Singleton** — `src/db/connection.js` exporta un único pool de conexiones a
+  PostgreSQL. El sistema de módulos de Node cachea ese export, garantizando una
+  sola instancia compartida en toda la aplicación.
+
+- **Fachada (Facade)** — `VentaService` y `ReporteService` ofrecen una
+  interfaz simple que oculta la complejidad del subsistema. Por ejemplo,
+  `ventaService.creaVenta()` coordina, en una única transacción, el alta de la
+  venta, el descuento de stock y el registro del movimiento de inventario; el
+  controller solo invoca esa operación sin conocer los repositorios internos.
+
+- **Observador (Observer)** — En `src/services/reporteService.js`, la
+  generación del PDF usa el modelo de eventos de PDFKit. El documento
+  (`PDFDocument`) actúa como *Subject* y emite los eventos `data`, `end` y
+  `error`; el servicio se suscribe como *Observer* con `.on(...)` y reacciona
+  automáticamente a cada notificación, sin acoplarse al funcionamiento interno
+  del generador.
+
+## Estructura del proyecto
 
 ```
-npm run dev
+zenithweb/
+├── index.js                 # Punto de entrada del backend (Express)
+├── src/
+│   ├── controllers/         # Reciben las peticiones HTTP
+│   ├── services/            # Lógica de negocio (fachadas)
+│   ├── repositories/        # Acceso a datos (consultas SQL)
+│   ├── routes/              # Definición de rutas de la API
+│   ├── middleware/          # Autenticación JWT y control de roles
+│   ├── utils/               # Validadores reutilizables
+│   └── db/                  # Conexión, esquema y scripts SQL
+└── client/                  # Frontend React + Vite
+    └── src/
+        ├── api/             # Clientes HTTP hacia el backend
+        └── pages/           # Vistas de la aplicación
 ```
-
----
-
-## Base de datos
-
-Para crear la base de datos:
-
-```
-psql -U postgres -d stock_db -f database/schema.sql
-```
-
----
 
 ## Metodología de desarrollo
 
