@@ -1,0 +1,25 @@
+@startuml ZenithWeb_Secuencia_ModificarProducto
+' Diagrama de secuencia: Modificar Producto
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor Usuario
+participant "Sistema\n(Interfaz)" as Sistema
+participant Producto
+participant Categoria
+
+Usuario -> Sistema : selecciona "editar producto"
+Sistema -> Producto : getById(id)
+Producto --> Sistema : datos del producto
+Sistema -> Categoria : obtenerCategorias()
+Categoria --> Sistema : listado de categorias
+Sistema --> Usuario : muestra formulario con datos cargados
+
+Usuario -> Sistema : modifica los campos
+Usuario -> Sistema : guarda cambios
+Sistema -> Producto : update(id, datos)
+Producto -> Producto : update() (actualiza el registro)
+Producto --> Sistema : producto actualizado
+Sistema --> Usuario : producto modificado
+
+@enduml

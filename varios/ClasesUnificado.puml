@@ -1,0 +1,255 @@
+@startuml ZenithWeb_Unificado
+allowmixing
+' Diagrama de Clases UNIFICADO (ZenithWeb)
+'   - Modelo de Dominio (entidades + multiplicidades, segun backup.sql)
+'   - Arquitectura en capas + Patrones del Tema 5 (Singleton, Fachada, Observador)
+' Render: https://www.plantuml.com/plantuml  o  extension PlantUML en VS Code
+
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam usecase {
+  BackgroundColor #FFFDE7
+  BorderColor #C9A227
+}
+skinparam class {
+  BackgroundColor<<Entity>>     #FFFFFF
+  BackgroundColor<<Client>>     #E8EAF6
+  BackgroundColor<<Facade>>     #E0F2F1
+  BackgroundColor<<Subsystem>>  #FCE4EC
+  BackgroundColor<<Repository>> #F3E5F5
+  BackgroundColor<<Singleton>>  #ECEFF1
+  BackgroundColor<<Subject>>    #FFF3E0
+  BackgroundColor<<Observer>>   #FFF8E1
+}
+
+' #####################################################################
+' #                       MODELO DE DOMINIO                            #
+' #####################################################################
+package "Modelo de Dominio" <<Folder>> {
+
+  class Usuario <<Entity>> {
+    +int id_usuario
+    +string documento
+    +string nombre_completo
+    +string correo
+    +string clave
+    +int id_rol
+    +bool estado
+    +string rol
+  }
+
+  class Rol <<Entity>> {
+    +int id_rol
+    +string descripcion
+    +datetime fecha_creacion
+  }
+
+  class Permiso <<Entity>> {
+    +int id_permiso
+    +int id_rol
+    +string nombre_menu
+  }
+
+  class Categoria <<Entity>> {
+    +int id_categoria
+    +string descripcion
+    +bool estado
+  }
+
+  class Producto <<Entity>> {
+    +int id_producto
+    +string codigo
+    +string nombre
+    +string descripcion
+    +int id_categoria
+    +int stock
+    +decimal precio_compra
+    +decimal precio_venta
+    +bool estado
+  }
+
+  class Venta <<Entity>> {
+    +int id_venta
+    +int id_usuario
+    +string tipo_documento
+    +string documento_cliente
+    +string nombre_cliente
+    +decimal monto_pago
+    +decimal monto_cambio
+    +decimal monto_total
+    +datetime fecha
+  }
+
+  class DetalleVenta <<Entity>> {
+    +int id_detalle_venta
+    +int id_venta
+    +int id_producto
+    +decimal precio_venta
+    +int cantidad
+    +decimal subtotal
+    +datetime fecha_registro
+  }
+
+  class RegistroInventario <<Entity>> {
+    +int id_registro
+    +int id_producto
+    +string tipo
+    +int cantidad
+    +decimal total
+    +int id_venta
+    +int id_usuario
+    +datetime fecha
+  }
+
+  class Cliente <<Entity>> {
+    +int id_cliente
+    +string dni
+    +string nombre
+    +string correo
+    +string telefono
+    +bool estado
+  }
+
+  ' ---- Relaciones de dominio (multiplicidades segun el esquema real) ----
+  Rol "1" -- "0..*" Usuario : tiene
+  Rol "1" -- "0..*" Permiso : define
+  Usuario "1" -- "0..*" Venta : registra
+  Categoria "1" -- "0..*" Producto : clasifica
+  Venta "1" -- "1..*" DetalleVenta : contiene
+  Producto "1" -- "0..*" DetalleVenta : aparece en
+  Producto "1" -- "0..*" RegistroInventario : movimientos
+  Usuario "1" -- "0..*" RegistroInventario : genera
+  Venta "0..1" -- "0..*" RegistroInventario : origina (salida)
+}
+
+' #####################################################################
+' #              ARQUITECTURA EN CAPAS + PATRONES (Tema 5)             #
+' #####################################################################
+package "Arquitectura y Patrones" <<Folder>> {
+
+  ' --- Clientes de la fachada (capa Controller) ---
+  class VentaController <<Client>> {
+    +agregarVenta(req,res)
+  }
+  class ReporteController <<Client>> {
+    +generarReportes(req,res)
+  }
+
+  ' --- Fachadas (capa Service) ---
+  class VentaService <<Facade>> {
+    + crearVenta(venta, detalles)
+    + validarStock(detalles)
+    + calcularTotal(detalles)
+    + registrarMovimientoInventario(venta, detalles)
+  }
+  class ReporteService <<Facade>> {
+    + generarPDF(filtros)
+    + obtenerDatosReporte(filtros)
+    + construirDocumentoPDF(datos)
+  }
+
+  ' --- Subsistema tras la fachada (capa Repository) ---
+  class VentaRepository <<Subsystem>> {
+    +crearVenta(client, venta, detalles)
+  }
+  class ProductoRepository <<Subsystem>> {
+    +descuentaStock(client, id, cantidad)
+  }
+  class RegistroInventarioRepository <<Repository>> {
+    + registrarEntrada(producto, cantidad, precioCompra)
+    + registrarSalida(producto, cantidad, venta)
+    + obtenerMovimientos(filtros)
+  }
+
+  ' --- Singleton (acceso a datos) ---
+  class DBConnection <<Singleton>> {
+    - {static} instance : DBConnection
+    - pool
+    --
+    - DBConnection()
+    + {static} getInstance() : DBConnection
+    + query(sql, params)
+    + connect() : Client
+  }
+
+  ' --- Generador de PDF (pdfkit) ---
+  class PDFDocument <<Subsystem>> {
+    +on(evento, callback)
+    +end()
+  }
+
+  ' --- Patron Observador (estructura canonica) ---
+  class ReporteSubject <<Subject>> {
+    - observadores : ReporteObserver[*]
+    + agregarObservador(observer)
+    + eliminarObservador(observer)
+    + notificar(evento)
+  }
+  interface ReporteObserver <<Observer>> {
+    + actualizar(evento)
+  }
+  class PDFLoggerObserver <<Observer>> {
+    + actualizar(evento)
+  }
+  class NotificacionObserver <<Observer>> {
+    + actualizar(evento)
+  }
+
+  ReporteSubject "1" o-- "*" ReporteObserver : observadores
+  PDFLoggerObserver ..|> ReporteObserver
+  NotificacionObserver ..|> ReporteObserver
+
+  ' --- Relaciones estructurales entre capas ---
+  VentaController --> VentaService
+  ReporteController --> ReporteService
+  VentaService ..> VentaRepository : crea venta + detalle
+  VentaService ..> ProductoRepository : descuenta stock
+  VentaService ..> RegistroInventarioRepository : registra movimiento
+  VentaService ..> DBConnection : connect() / transaccion
+  VentaRepository --> DBConnection
+  ProductoRepository --> DBConnection
+  RegistroInventarioRepository ..> DBConnection : usa conexion / pool
+  ReporteService ..> VentaRepository : obtiene datos
+  ReporteService ..> ProductoRepository : obtiene datos
+  ReporteService ..> RegistroInventarioRepository : obtiene movimientos
+  ReporteService ..> PDFDocument : crea el PDF
+  ReporteService --> ReporteSubject : notifica al finalizar
+}
+
+' #####################################################################
+' #         PUENTE: los repositorios persisten las entidades          #
+' #####################################################################
+VentaRepository ..> Venta : persiste
+VentaRepository ..> DetalleVenta : persiste
+ProductoRepository ..> Producto : persiste
+RegistroInventarioRepository ..> RegistroInventario : persiste
+
+' #####################################################################
+' #              OCURRENCIAS DE PATRON (notacion GoF)                 #
+' #####################################################################
+
+' ---- Singleton ----
+usecase "Singleton" as P_Singleton
+P_Singleton .. DBConnection      : «SingleInstance»
+P_Singleton .. VentaRepository   : «Client»
+P_Singleton .. ProductoRepository: «Client»
+
+' ---- Fachada ----
+usecase "Fachada" as P_Facade
+P_Facade .. VentaController   : «Client»
+P_Facade .. ReporteController : «Client»
+P_Facade .. VentaService      : «Facade»
+P_Facade .. ReporteService    : «Facade»
+P_Facade .. VentaRepository   : «Subsystem»
+P_Facade .. ProductoRepository: «Subsystem»
+P_Facade .. RegistroInventarioRepository : «Subsystem»
+
+' ---- Observador ----
+usecase "Observador" as P_Observer
+P_Observer .. ReporteSubject       : «Subject»
+P_Observer .. ReporteObserver      : «Observer»
+P_Observer .. PDFLoggerObserver    : «ConcreteObserver»
+P_Observer .. NotificacionObserver : «ConcreteObserver»
+
+@enduml

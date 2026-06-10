@@ -1,0 +1,81 @@
+============================================================================
+ PASO 1 - VARIABLES DEL BACKEND   (crear archivo:  .env  en la raíz)
+============================================================================
+
+Hay dos opciones. Elegí UNA.
+
+----------------------------------------------------------------------------
+Base de datos PostgreSQL LOCAL
+----------------------------------------------------------------------------
+Crear el archivo ".env" en la raíz del proyecto con este contenido y ajustar
+DB_PASSWORD con la contraseña de tu PostgreSQL:
+
+   DB_USER=postgres
+   DB_HOST=localhost
+   DB_NAME=control_stock
+   DB_PASSWORD=TU_CONTRASEÑA_DE_POSTGRES
+   DB_PORT=5432
+   JWT_SECRET=zenithweb-secreto-local
+
+Notas:
+ - DB_NAME (control_stock) es el nombre de la base; podés cambiarlo, pero debe
+   coincidir con la base que crees en el PASO 3.
+ - JWT_SECRET puede ser cualquier texto; se usa para firmar el token de login.
+
+============================================================================
+ PASO 2 - VARIABLES DEL FRONTEND   (crear archivo:  client/.env)
+============================================================================
+
+Crear el archivo ".env" DENTRO de la carpeta "client" con esta línea:
+
+   VITE_API_URL=http://localhost:3000
+
+Esto le dice al frontend dónde está el backend. Para correr local siempre es
+http://localhost:3000 (es el puerto por defecto del backend).
+
+
+============================================================================
+ PASO 3 - CREAR Y CARGAR LA BASE DE DATOS
+============================================================================
+
+ 1) Crear la base de datos vacía (desde psql o pgAdmin):
+
+       CREATE DATABASE control_stock;
+
+ 2) Cargar todo el esquema + datos de ejemplo de una sola vez. Desde una
+    terminal, parado en la carpeta del proyecto:
+
+       psql -U postgres -d control_stock -f src/db/setup_completo.sql
+
+    Ese script crea todas las tablas, las funciones, los índices y carga
+    datos de ejemplo (7 categorías, 16 productos, 5 ventas).
+
+
+============================================================================
+ PASO 4 - INSTALAR DEPENDENCIAS Y LEVANTAR EL PROYECTO
+============================================================================
+
+ Backend (desde la raíz del proyecto):
+
+       npm install
+       npm start
+   -> Debe decir:  "servidor corriendo en puerto 3000"
+
+ Frontend (en OTRA terminal, dentro de la carpeta client):
+
+       cd client
+       npm install
+       npm run dev
+   -> Abrir en el navegador la URL que muestra (normalmente http://localhost:5173)
+
+
+============================================================================
+ USUARIOS DE PRUEBA (para iniciar sesión)
+============================================================================
+
+   Correo                  Contraseña      Rol
+   ----------------------  --------------  ----------------
+   admin@zenith.com        admin123        vendedor
+   gerente@zenith.com      gerente123      gerente
+   operador@zenith.com     operador123     operador_stock
+   vendedor@zenith.com     vendedor123     vendedor

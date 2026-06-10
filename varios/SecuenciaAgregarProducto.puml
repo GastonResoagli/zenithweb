@@ -1,0 +1,23 @@
+@startuml ZenithWeb_Secuencia_AgregarProducto
+' Diagrama de secuencia: Agregar Producto
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor Usuario
+participant "Sistema\n(Interfaz)" as Sistema
+participant Producto
+participant Categoria
+
+Usuario -> Sistema : selecciona "nuevo producto"
+Sistema -> Categoria : obtenerCategorias()
+Categoria --> Sistema : listado de categorias
+Sistema --> Usuario : muestra formulario
+
+Usuario -> Sistema : completa los campos
+Usuario -> Sistema : guarda cambios
+Sistema -> Producto : crearProducto(datos)
+Producto -> Producto : valida que el nombre no exista
+Producto --> Sistema : producto creado
+Sistema --> Usuario : producto agregado
+
+@enduml

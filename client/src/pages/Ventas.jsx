@@ -117,11 +117,11 @@ const Ventas = () => {
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Documento cliente</label>
-                                <input value={datosVenta.documento_cliente} onChange={e => setDatosVenta({ ...datosVenta, documento_cliente: e.target.value })} placeholder="DNI / CUIT" required className="form-input" />
+                                <input value={datosVenta.documento_cliente} onChange={e => setDatosVenta({ ...datosVenta, documento_cliente: e.target.value.replace(/\D/g, '') })} placeholder="DNI / CUIT" inputMode="numeric" required className="form-input" />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Nombre cliente</label>
-                                <input value={datosVenta.nombre_cliente} onChange={e => setDatosVenta({ ...datosVenta, nombre_cliente: e.target.value })} placeholder="Nombre completo" required className="form-input" />
+                                <input value={datosVenta.nombre_cliente} onChange={e => setDatosVenta({ ...datosVenta, nombre_cliente: e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '') })} placeholder="Nombre completo" required className="form-input" />
                             </div>
                         </div>
 

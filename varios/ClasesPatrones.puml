@@ -1,0 +1,150 @@
+@startuml ZenithWeb_Patrones_Tema5
+allowmixing
+' Patrones aplicados (Tema 5): Singleton, Fachada y Observador
+' Elipse amarilla = ocurrencia del patron ; linea punteada «Rol» = papel GoF de cada clase
+' Render: https://www.plantuml.com/plantuml  o  extension PlantUML en VS Code
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam usecase {
+  BackgroundColor #FFFDE7
+  BorderColor #C9A227
+}
+skinparam class {
+  BackgroundColor<<Client>>     #E8EAF6
+  BackgroundColor<<Facade>>     #E0F2F1
+  BackgroundColor<<Subsystem>>  #FCE4EC
+  BackgroundColor<<Repository>> #F3E5F5
+  BackgroundColor<<Singleton>>  #ECEFF1
+  BackgroundColor<<Subject>>    #FFF3E0
+  BackgroundColor<<Observer>>   #FFF8E1
+}
+
+' ===================== PARTICIPANTES (clases reales) =====================
+
+' --- Clientes de la fachada (capa Controller) ---
+class VentaController <<Client>> {
+  +agregarVenta(req,res)
+}
+class ReporteController <<Client>> {
+  +generarReportes(req,res)
+}
+
+' --- Fachadas (capa Service) ---
+' VentaService es la FACHADA: una sola operacion (crearVenta) coordina todo el
+' subsistema (venta + detalle + descuento de stock + movimiento de inventario).
+class VentaService <<Facade>> {
+  + crearVenta(venta, detalles)
+  + validarStock(detalles)
+  + calcularTotal(detalles)
+  + registrarMovimientoInventario(venta, detalles)
+}
+' ReporteService es FACHADA: generarPDF coordina obtener los datos y construir el PDF.
+class ReporteService <<Facade>> {
+  + generarPDF(filtros)
+  + obtenerDatosReporte(filtros)
+  + construirDocumentoPDF(datos)
+}
+
+' --- Subsistema oculto tras la fachada (capa Repository) ---
+class VentaRepository <<Subsystem>> {
+  +crearVenta(client, venta, detalles)
+}
+class ProductoRepository <<Subsystem>> {
+  +descuentaStock(client, id, cantidad)
+}
+' Persiste los movimientos de inventario (entradas por compra/ingreso y salidas por venta)
+class RegistroInventarioRepository <<Repository>> {
+  + registrarEntrada(producto, cantidad, precioCompra)
+  + registrarSalida(producto, cantidad, venta)
+  + obtenerMovimientos(filtros)
+}
+
+' --- Singleton (acceso a datos) ---
+' instance y getInstance() son estaticos (subrayados): garantizan UNA sola instancia.
+' El constructor es privado para impedir crear DBConnection con "new" desde afuera.
+class DBConnection <<Singleton>> {
+  - {static} instance : DBConnection
+  - pool
+  --
+  - DBConnection()
+  + {static} getInstance() : DBConnection
+  + query(sql, params)
+  + connect() : Client
+}
+
+' --- Generador de PDF (pdfkit): parte del subsistema de la fachada de reportes ---
+class PDFDocument <<Subsystem>> {
+  +on(evento, callback)
+  +end()
+}
+
+' ===================== PATRON OBSERVADOR (estructura canonica) =====================
+' Al finalizar la generacion del PDF, ReporteSubject notifica a los observadores
+' registrados (p. ej. registrar un log o enviar una notificacion).
+class ReporteSubject <<Subject>> {
+  - observadores : ReporteObserver[*]
+  + agregarObservador(observer)
+  + eliminarObservador(observer)
+  + notificar(evento)
+}
+interface ReporteObserver <<Observer>> {
+  + actualizar(evento)
+}
+class PDFLoggerObserver <<Observer>> {
+  + actualizar(evento)
+}
+class NotificacionObserver <<Observer>> {
+  + actualizar(evento)
+}
+
+' Agregacion 1 a muchos: un Subject mantiene muchos observadores
+ReporteSubject "1" o-- "*" ReporteObserver : observadores
+' Los observadores concretos implementan la interfaz Observer
+PDFLoggerObserver ..|> ReporteObserver
+NotificacionObserver ..|> ReporteObserver
+
+' ===================== RELACIONES ESTRUCTURALES =====================
+VentaController --> VentaService
+ReporteController --> ReporteService
+' La fachada DEPENDE (dependencia, flecha punteada) de los subsistemas que coordina
+VentaService ..> VentaRepository : crea venta + detalle
+VentaService ..> ProductoRepository : descuenta stock
+VentaService ..> RegistroInventarioRepository : registra movimiento
+VentaService ..> DBConnection : connect() / transaccion
+VentaRepository --> DBConnection
+ProductoRepository --> DBConnection
+RegistroInventarioRepository ..> DBConnection : usa conexion / pool
+' ReporteService (fachada de reportes) coordina los repositorios de datos y el PDF
+ReporteService ..> VentaRepository : obtiene datos
+ReporteService ..> ProductoRepository : obtiene datos
+ReporteService ..> RegistroInventarioRepository : obtiene movimientos
+ReporteService ..> PDFDocument : crea el PDF
+ReporteService --> ReporteSubject : notifica al finalizar
+
+' ===================== OCURRENCIAS DE PATRON (Tema 5) =====================
+
+' ---- Singleton ----
+usecase "Singleton" as P_Singleton
+P_Singleton .. DBConnection      : «SingleInstance»
+P_Singleton .. VentaRepository   : «Client»
+P_Singleton .. ProductoRepository: «Client»
+
+' ---- Fachada ----
+usecase "Fachada" as P_Facade
+P_Facade .. VentaController   : «Client»
+P_Facade .. ReporteController : «Client»
+P_Facade .. VentaService      : «Facade»
+P_Facade .. ReporteService    : «Facade»
+P_Facade .. VentaRepository   : «Subsystem»
+P_Facade .. ProductoRepository: «Subsystem»
+P_Facade .. RegistroInventarioRepository : «Subsystem»
+
+' ---- Observador ----
+usecase "Observador" as P_Observer
+P_Observer .. ReporteSubject       : «Subject»
+P_Observer .. ReporteObserver      : «Observer»
+P_Observer .. PDFLoggerObserver    : «ConcreteObserver»
+P_Observer .. NotificacionObserver : «ConcreteObserver»
+
+@enduml

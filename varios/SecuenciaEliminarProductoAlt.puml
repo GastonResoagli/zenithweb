@@ -1,0 +1,31 @@
+@startuml ZenithWeb_Secuencia_EliminarProducto_Alternativo
+' Diagrama de secuencia alternativo: Eliminar Producto (flujos de excepcion)
+' Baja logica (estado = false). Cubre: producto inexistente y cancelacion del usuario
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+actor Usuario
+participant "Sistema\n(Interfaz)" as Sistema
+participant Producto
+
+Usuario -> Sistema : selecciona "dar de baja producto"
+Sistema --> Usuario : pide confirmacion
+
+alt el usuario cancela
+    Usuario -> Sistema : cancela
+    Sistema --> Usuario : no se realiza ningun cambio
+else el usuario confirma
+    Usuario -> Sistema : confirma la baja
+    Sistema -> Producto : remove(id)
+
+    alt producto inexistente
+        Producto --> Sistema : Error "producto no encontrado"
+        Sistema --> Usuario : muestra error
+    else producto valido
+        Producto -> Producto : baja logica (estado = false)
+        Producto --> Sistema : se da de baja el producto
+        Sistema --> Usuario : producto eliminado
+    end
+end
+
+@enduml
