@@ -36,6 +36,18 @@ const MODULOS = [
         ),
     },
     {
+        id: 'movimientos',
+        titulo: 'Movimientos de Stock',
+        descripcion: 'Registrá entradas de stock y consultá el historial de movimientos del inventario.',
+        ruta: '/movimientos',
+        roles: ['gerente', 'operador_stock'],
+        icono: (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-9L21 7.5m0 0L16.5 3M21 7.5H7.5" />
+            </svg>
+        ),
+    },
+    {
         id: 'reportes',
         titulo: 'Reportes',
         descripcion: 'Generá reportes PDF de movimientos de inventario con filtros.',

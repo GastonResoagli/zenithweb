@@ -1,81 +1,77 @@
 ============================================================================
- PASO 1 - VARIABLES DEL BACKEND   (crear archivo:  .env  en la raíz)
+ CONFIGURACIÓN DE VARIABLES DE ENTORNO — ZenithWeb
 ============================================================================
+ Sistema de Gestión de Stock de Paneles Solares.
+ Hay DOS proyectos con sus propias variables: el BACKEND (Express) y el
+ FRONTEND (Vite/React). Cada uno usa un archivo .env propio.
 
-Hay dos opciones. Elegí UNA.
-
-----------------------------------------------------------------------------
-Base de datos PostgreSQL LOCAL
-----------------------------------------------------------------------------
-Crear el archivo ".env" en la raíz del proyecto con este contenido y ajustar
-DB_PASSWORD con la contraseña de tu PostgreSQL:
-
-   DB_USER=postgres
-   DB_HOST=localhost
-   DB_NAME=control_stock
-   DB_PASSWORD=TU_CONTRASEÑA_DE_POSTGRES
-   DB_PORT=5432
-   JWT_SECRET=zenithweb-secreto-local
-
-Notas:
- - DB_NAME (control_stock) es el nombre de la base; podés cambiarlo, pero debe
-   coincidir con la base que crees en el PASO 3.
- - JWT_SECRET puede ser cualquier texto; se usa para firmar el token de login.
+ IMPORTANTE: los archivos .env NO se suben al repositorio (están en .gitignore).
+ Solo se versionan los .env.example como plantilla.
 
 ============================================================================
- PASO 2 - VARIABLES DEL FRONTEND   (crear archivo:  client/.env)
+ 1) BACKEND — archivo:  .env   (en la raíz del proyecto)
 ============================================================================
 
-Crear el archivo ".env" DENTRO de la carpeta "client" con esta línea:
+ -- DESARROLLO LOCAL (PostgreSQL en tu máquina) --
 
-   VITE_API_URL=http://localhost:3000
+   DB_USER=postgres                # usuario de PostgreSQL
+   DB_HOST=localhost               # host de la base
+   DB_NAME=control_stock           # nombre de la base de datos
+   DB_PASSWORD=5252                # contraseña del usuario de PostgreSQL
+   DB_PORT=5432                    # puerto de PostgreSQL (default 5432)
 
-Esto le dice al frontend dónde está el backend. Para correr local siempre es
-http://localhost:3000 (es el puerto por defecto del backend).
+   JWT_SECRET=<secreto largo y aleatorio>   # firma de los tokens JWT (OBLIGATORIO)
+   PORT=3000                       # puerto donde corre el backend
 
+ -- PRODUCCIÓN (Render + Supabase) --
+   En vez de las DB_* se usa una sola connection string. Si DATABASE_URL está
+   definida, el backend la usa con SSL e IGNORA todas las DB_* de arriba.
 
-============================================================================
- PASO 3 - CREAR Y CARGAR LA BASE DE DATOS
-============================================================================
+   DATABASE_URL=postgresql://postgres.<ref>:<password>@<host>:6543/postgres
+   FRONTEND_URL=https://zenithweb.vercel.app   # restringe el CORS al front
+   JWT_SECRET=<el mismo tipo de secreto>
+   # PORT lo inyecta Render automáticamente.
 
- 1) Crear la base de datos vacía (desde psql o pgAdmin):
+ -- Cómo generar un JWT_SECRET seguro --
+   Ejecutar en una terminal (con Node instalado):
+     node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+   Copiar el valor resultante en JWT_SECRET.
 
-       CREATE DATABASE control_stock;
-
- 2) Cargar todo el esquema + datos de ejemplo de una sola vez. Desde una
-    terminal, parado en la carpeta del proyecto:
-
-       psql -U postgres -d control_stock -f src/db/setup_completo.sql
-
-    Ese script crea todas las tablas, las funciones, los índices y carga
-    datos de ejemplo (7 categorías, 16 productos, 5 ventas).
-
-
-============================================================================
- PASO 4 - INSTALAR DEPENDENCIAS Y LEVANTAR EL PROYECTO
-============================================================================
-
- Backend (desde la raíz del proyecto):
-
-       npm install
-       npm start
-   -> Debe decir:  "servidor corriendo en puerto 3000"
-
- Frontend (en OTRA terminal, dentro de la carpeta client):
-
-       cd client
-       npm install
-       npm run dev
-   -> Abrir en el navegador la URL que muestra (normalmente http://localhost:5173)
-
+ NOTA: si se cambia el JWT_SECRET, todos los tokens emitidos antes quedan
+ inválidos -> hay que volver a iniciar sesión. Es el comportamiento esperado.
 
 ============================================================================
- USUARIOS DE PRUEBA (para iniciar sesión)
+ 2) FRONTEND — archivo:  client/.env
 ============================================================================
+ Las variables expuestas al navegador DEBEN empezar con VITE_.
 
-   Correo                  Contraseña      Rol
-   ----------------------  --------------  ----------------
-   admin@zenith.com        admin123        vendedor
-   gerente@zenith.com      gerente123      gerente
-   operador@zenith.com     operador123     operador_stock
-   vendedor@zenith.com     vendedor123     vendedor
+ -- DESARROLLO LOCAL --
+   VITE_API_URL=http://localhost:3000     # URL del backend local
+
+ -- PRODUCCIÓN (Vercel) --
+   VITE_API_URL=https://zenithweb-api.onrender.com   # URL del backend en Render
+   (sin barra final). Se configura en Vercel > Settings > Environment Variables.
+
+ Si VITE_API_URL no se define, el front cae por defecto a http://localhost:3000.
+
+============================================================================
+ 3) PUESTA EN MARCHA RÁPIDA (local)
+============================================================================
+ 1. Copiar .env.example  ->  .env           (raíz, backend)
+ 2. Copiar client/.env.example  ->  client/.env   (frontend)
+ 3. Completar los valores según las secciones de arriba.
+ 4. Generar y pegar un JWT_SECRET (ver comando más arriba).
+ 5. Backend:   npm start         (queda en http://localhost:3000)
+ 6. Frontend:  cd client && npm run dev
+
+============================================================================
+ 4) RESUMEN: dónde lee cada variable el código
+============================================================================
+   DB_USER/HOST/NAME/PASSWORD/PORT ... src/db/connection.js  (modo local)
+   DATABASE_URL ...................... src/db/connection.js  (modo producción)
+   JWT_SECRET ....................... src/services/authService.js (firma)
+                                       src/middleware/authMiddleware.js (verifica)
+   PORT ............................. index.js
+   FRONTEND_URL ..................... index.js  (CORS)
+   VITE_API_URL ..................... client/src/api/*.js
+============================================================================
