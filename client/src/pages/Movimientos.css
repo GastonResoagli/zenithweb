@@ -11,6 +11,123 @@
   margin-bottom: 1.5rem; /* mb-6 */
 }
 
+/* Cabecera con título + botón de acción (mismo patrón que Ventas) */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.page-header .page-title {
+  margin-bottom: 0;
+}
+
+.btn-primary-sm {
+  padding: 0.375rem 0.75rem;
+  background-color: var(--color-bb-700);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary-sm:hover {
+  background-color: var(--color-bb-800);
+}
+
+.btn-primary {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-bb-700);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-bb-800);
+}
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: var(--color-bb-700);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--color-bb-200);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bb-50);
+}
+
+/* Formulario de nueva entrada */
+.card {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  background-color: white;
+  border: 1px solid var(--color-bb-100);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-bb-900);
+  margin-bottom: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: block;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-bb-700);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-bb-200);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-bb-900);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bb-400);
+  border-color: var(--color-bb-400);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
 .alert-error {
   margin-bottom: 1rem;
   padding: 0.75rem;
@@ -92,6 +209,22 @@
 .badge-salida {
   background-color: #fee2e2; /* red-100 */
   color: #b91c1c; /* red-700 */
+}
+
+.action-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  background-color: var(--color-bb-100);
+  color: var(--color-bb-800);
+  transition: background-color 0.2s;
+}
+
+.action-btn:hover {
+  background-color: var(--color-bb-200);
 }
 
 .empty-state {

@@ -37,6 +37,10 @@ exports.agregarVenta = async (req, res) => {
         if (error.message.includes('venta debe tener')) {
             return res.status(400).json({ error: error.message });
         }
+        // Stock insuficiente lo lanza la función almacenada registrar_venta -> 409 (conflicto)
+        if (error.message.includes('Stock insuficiente')) {
+            return res.status(409).json({ error: error.message });
+        }
         res.status(500).json({ error: error.message });
     }
 };

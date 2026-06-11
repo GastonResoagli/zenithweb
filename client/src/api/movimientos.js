@@ -16,4 +16,28 @@ export const getAll = async () => {
     return res.json();
 };
 
+// Registra una entrada de stock (POST). Propaga el mensaje del backend.
+export const registrarEntrada = async (entrada) => {
+    const res = await fetch(`${BASE}/entrada`, {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify(entrada),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Error al registrar la entrada');
+    return data;
+};
+
+// Actualiza una entrada de stock existente (PUT). Propaga el mensaje del backend.
+export const actualizarEntrada = async (id, entrada) => {
+    const res = await fetch(`${BASE}/entrada/${id}`, {
+        method: 'PUT',
+        headers: headers(),
+        body: JSON.stringify(entrada),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar la entrada');
+    return data;
+};
+
 

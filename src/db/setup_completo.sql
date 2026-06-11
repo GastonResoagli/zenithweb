@@ -187,7 +187,52 @@ BEGIN
 END;
 $$;
 
--- 4) registrar_venta(datos_venta JSONB, detalles JSONB) -> id_venta
+-- 4) actualizar_entrada(id_registro, cantidad, precio_compra)
+CREATE OR REPLACE PROCEDURE actualizar_entrada(
+    p_id_registro   INT,
+    p_cantidad      INT,
+    p_precio_compra NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_producto  INT;
+    v_cantidad_ant INT;
+    v_tipo         VARCHAR(10);
+    v_stock        INT;
+BEGIN
+    SELECT id_producto, cantidad, tipo
+      INTO v_id_producto, v_cantidad_ant, v_tipo
+      FROM registro_inventario
+     WHERE id_registro = p_id_registro
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Movimiento % no encontrado', p_id_registro;
+    END IF;
+
+    IF v_tipo <> 'entrada' THEN
+        RAISE EXCEPTION 'Solo se pueden actualizar movimientos de tipo entrada';
+    END IF;
+
+    UPDATE producto
+       SET stock = stock + (p_cantidad - v_cantidad_ant)
+     WHERE id_producto = v_id_producto
+    RETURNING stock INTO v_stock;
+
+    IF v_stock < 0 THEN
+        RAISE EXCEPTION 'La actualizacion dejaria el stock en negativo';
+    END IF;
+
+    UPDATE registro_inventario
+       SET cantidad      = p_cantidad,
+           precio_compra = p_precio_compra,
+           total         = p_cantidad * p_precio_compra
+     WHERE id_registro = p_id_registro;
+END;
+$$;
+
+-- 5) registrar_venta(datos_venta JSONB, detalles JSONB) -> id_venta
 CREATE OR REPLACE FUNCTION registrar_venta(p_venta JSONB, p_detalles JSONB)
 RETURNS INTEGER
 LANGUAGE plpgsql

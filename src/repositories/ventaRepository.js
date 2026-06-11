@@ -31,35 +31,18 @@ exports.getById = async (id) => {
     return { ...venta.rows[0], detalles: detalles.rows };
 };
 
-// Inserta la venta y, por cada detalle, su línea de detalle_venta + un registro de inventario.
-// Recibe "client" para ejecutarse dentro de la transacción coordinada por ventaService.
-exports.crearVenta = async (client, venta, detalles) => {
-    const { tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, id_usuario } = venta;
+// Registra una venta completa invocando la función almacenada registrar_venta
+// (definida en src/db/funciones.sql). Esa función, en una única operación atómica,
+// inserta la cabecera, recorre el detalle, descuenta el stock (validándolo) y deja
+// registrado el movimiento de inventario 'salida'. Si algo falla, PostgreSQL revierte
+// todo el statement automáticamente (no quedan datos a medias).
+exports.crearVenta = async (venta, detalles) => {
+    // Los parámetros JSONB se envían como texto y se castean a jsonb dentro de la consulta.
+    const result = await db.query(
+        'SELECT registrar_venta($1::jsonb, $2::jsonb) AS id_venta',
+        [JSON.stringify(venta), JSON.stringify(detalles)]
+    );
 
-    const ventaResult = await client.query(`
-        INSERT INTO venta (id_usuario, tipo_documento, documento_cliente, nombre_cliente, monto_pago, monto_cambio, monto_total, fecha)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING *
-    `, [parseInt(id_usuario), tipo_documento, documento_cliente, nombre_cliente,
-        parseFloat(monto_pago), parseFloat(monto_cambio), parseFloat(monto_total)]);
-
-    const nuevaVenta = ventaResult.rows[0];
-
-    // Por cada producto vendido: insertamos su línea de detalle y el movimiento de inventario
-    for (const detalle of detalles) {
-        const { id_producto, cantidad, precio_venta } = detalle;
-        const subtotal = parseFloat(precio_venta) * parseInt(cantidad); // precio x cantidad
-
-        await client.query(`
-            INSERT INTO detalle_venta (id_venta, id_producto, precio_venta, cantidad, subtotal, fecha_registro)
-            VALUES ($1, $2, $3, $4, $5, NOW())
-        `, [nuevaVenta.id_venta, parseInt(id_producto), parseFloat(precio_venta), parseInt(cantidad), subtotal]);
-
-        // Registramos el movimiento como 'salida' para trazabilidad y generación de reportes
-        await client.query(`
-            INSERT INTO registro_inventario (id_producto, tipo, cantidad, total, id_venta, id_usuario, fecha)
-            VALUES ($1, 'salida', $2, $3, $4, $5, NOW())
-        `, [parseInt(id_producto), parseInt(cantidad), subtotal, nuevaVenta.id_venta, parseInt(id_usuario)]);
-    }
-
-    return nuevaVenta;
+    // La función devuelve solo el id de la venta creada; devolvemos la venta completa con su detalle.
+    return exports.getById(result.rows[0].id_venta);
 };

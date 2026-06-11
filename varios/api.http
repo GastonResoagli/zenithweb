@@ -1,0 +1,211 @@
+###############################################################################
+# ZenithWeb - Pruebas de API (extension REST Client de VS Code)
+# -----------------------------------------------------------------------------
+# Requisitos:
+#   1) Instalar la extension "REST Client" (humao.rest-client) en VS Code.
+#   2) Levantar el backend:  npm start   (o:  node index.js)
+#   3) Ejecutar primero el LOGIN: hace clic en "Send Request" arriba de la peticion.
+#      El token queda capturado en {{login.response.body.token}} y lo usan
+#      automaticamente el resto de las requests.
+#
+# Usuarios seed (correo / password):
+#   gerente@zenith.com   / gerente123    -> rol gerente
+#   operador@zenith.com  / operador123   -> rol operador_stock
+#   vendedor@zenith.com  / vendedor123   -> rol vendedor
+#   admin@zenith.com     / admin123      -> rol vendedor
+###############################################################################
+
+@baseUrl = http://localhost:3000
+@idProducto = 1
+@idVenta = 1
+
+### ============================================================
+### 1. AUTH
+### ============================================================
+
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "gerente@zenith.com",
+  "password": "gerente123"
+}
+
+###
+# Token capturado de la respuesta del login. Lo usan todas las requests de abajo.
+@token = {{login.response.body.token}}
+
+
+### ============================================================
+### 2. PRODUCTOS
+### ============================================================
+
+### Listar productos
+GET {{baseUrl}}/api/productos
+Authorization: Bearer {{token}}
+
+### Listar solo productos activos
+GET {{baseUrl}}/api/productos?soloActivos=true
+Authorization: Bearer {{token}}
+
+### Producto por id
+GET {{baseUrl}}/api/productos/{{idProducto}}
+Authorization: Bearer {{token}}
+
+### Crear producto (rol gerente u operador_stock)
+POST {{baseUrl}}/api/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Panel de Prueba 700W",
+  "descripcion": "Producto creado desde REST Client",
+  "id_categoria": 1,
+  "stock": 10,
+  "precio_compra": 100000,
+  "precio_venta": 150000
+}
+
+### Actualizar producto
+PUT {{baseUrl}}/api/productos/{{idProducto}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nombre": "Panel de Prueba 700W (editado)",
+  "descripcion": "Descripcion actualizada",
+  "id_categoria": 1,
+  "stock": 25,
+  "precio_compra": 110000,
+  "precio_venta": 160000
+}
+
+### Cambiar estado (activar/desactivar) - estado debe ser boolean
+PATCH {{baseUrl}}/api/productos/{{idProducto}}/estado
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estado": false
+}
+
+### Baja logica del producto
+DELETE {{baseUrl}}/api/productos/{{idProducto}}
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 3. CATEGORIAS
+### ============================================================
+
+### Listar categorias
+GET {{baseUrl}}/api/categorias
+Authorization: Bearer {{token}}
+
+### Crear categoria (rol gerente u operador_stock)
+POST {{baseUrl}}/api/categorias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "descripcion": "Accesorios Varios"
+}
+
+
+### ============================================================
+### 4. VENTAS  (rol gerente o vendedor)
+### ============================================================
+
+### Listar ventas
+GET {{baseUrl}}/api/ventas
+Authorization: Bearer {{token}}
+
+### Venta por id
+GET {{baseUrl}}/api/ventas/{{idVenta}}
+Authorization: Bearer {{token}}
+
+### Registrar venta (el id_usuario se toma del token, no del body)
+POST {{baseUrl}}/api/ventas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo_documento": "Factura",
+  "documento_cliente": "20-12345678-9",
+  "nombre_cliente": "Cliente de Prueba",
+  "monto_pago": 300000,
+  "monto_cambio": 0,
+  "monto_total": 120000,
+  "detalles": [
+    { "id_producto": 1, "cantidad": 1, "precio_venta": 120000 }
+  ]
+}
+
+
+### ============================================================
+### 5. MOVIMIENTOS  (rol gerente u operador_stock)
+### ============================================================
+
+### Historial de movimientos
+GET {{baseUrl}}/api/movimientos
+Authorization: Bearer {{token}}
+
+
+### ============================================================
+### 6. REPORTES  (solo rol gerente)
+### ============================================================
+
+### Reporte de movimientos con filtros (tipo e id_producto son opcionales)
+GET {{baseUrl}}/api/reportes?fechaDesde=2025-01-01&fechaHasta=2025-12-31
+Authorization: Bearer {{token}}
+
+### Generar reporte en PDF (devuelve binario application/pdf)
+POST {{baseUrl}}/api/reportes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "fechaDesde": "2025-01-01",
+  "fechaHasta": "2025-12-31",
+  "tipo": "",
+  "id_producto": ""
+}
+
+
+### ============================================================
+### 7. CASOS DE ERROR (para probar codigos de estado)
+### ============================================================
+
+### 401 - Login con credenciales incorrectas
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "gerente@zenith.com",
+  "password": "claveMal"
+}
+
+### 401 - Pedir productos sin token
+GET {{baseUrl}}/api/productos
+
+### 400 - Crear producto con datos invalidos (falta nombre y categoria)
+POST {{baseUrl}}/api/productos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "stock": -5,
+  "precio_compra": 1000,
+  "precio_venta": 2000
+}
+
+### 400 - Venta sin detalles
+POST {{baseUrl}}/api/ventas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo_documento": "Factura",
+  "detalles": []
+}

@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Productos from './pages/Productos';
 import Ventas from './pages/Ventas';
+import Movimientos from './pages/Movimientos';
 import Reportes from './pages/Reportes';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -23,6 +24,9 @@ function App() {
                 } />
                 <Route path="/ventas" element={
                     <PrivateRoute allowedRoles={['gerente', 'vendedor']}><Ventas /></PrivateRoute>
+                } />
+                <Route path="/movimientos" element={
+                    <PrivateRoute allowedRoles={['gerente', 'operador_stock']}><Movimientos /></PrivateRoute>
                 } />
                 <Route path="/reportes" element={
                     <PrivateRoute allowedRoles={['gerente']}><Reportes /></PrivateRoute>

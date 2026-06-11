@@ -1,0 +1,24 @@
+{
+  "client": "Thunder Client",
+  "environmentName": "ZenithWeb Local",
+  "dateExported": "2026-06-10T00:00:00.000Z",
+  "version": "1.2",
+  "data": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "name": "token",
+      "value": ""
+    },
+    {
+      "name": "id_producto",
+      "value": "1"
+    },
+    {
+      "name": "id_venta",
+      "value": "1"
+    }
+  ]
+}

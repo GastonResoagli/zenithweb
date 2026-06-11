@@ -24,6 +24,7 @@ describe('Pruebas Unitarias - Movimiento Service', () => {
 
         const resultado = await movimientoService.getAll();
 
+        expect(movimientoRepository.getAll).toHaveBeenCalledTimes(1);
         expect(resultado).toEqual(movimientosMock);
     });
 

@@ -33,6 +33,12 @@ const Navbar = () => {
                             Ventas
                         </NavLink>
                     )}
+                    {/* Movimientos: solo visible para gerente y operador de stock */}
+                    {(rol === 'gerente' || rol === 'operador_stock') && (
+                        <NavLink to="/movimientos" className={linkClass}>
+                            Movimientos
+                        </NavLink>
+                    )}
                     {/* Reportes: solo visible para gerente */}
                     {rol === 'gerente' && (
                         <NavLink to="/reportes" className={linkClass}>

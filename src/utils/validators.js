@@ -27,6 +27,22 @@ exports.validarVenta = (datos) => {
     }
 };
 
+// Entrada de stock: producto obligatorio, cantidad positiva y precio de compra no negativo
+exports.validarEntrada = (datos) => {
+    const { id_producto, cantidad, precio_compra } = datos;
+    if (!id_producto) throw new Error('El producto es requerido');
+    if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser mayor a 0');
+    if (precio_compra === undefined || precio_compra < 0) throw new Error('El precio de compra no es válido');
+};
+
+// Actualización de entrada: cantidad positiva y precio de compra no negativo
+// (el producto no se cambia: queda determinado por el registro que se edita)
+exports.validarActualizacionEntrada = (datos) => {
+    const { cantidad, precio_compra } = datos;
+    if (!cantidad || cantidad <= 0) throw new Error('La cantidad debe ser mayor a 0');
+    if (precio_compra === undefined || precio_compra < 0) throw new Error('El precio de compra no es válido');
+};
+
 // Categoría: la descripción es obligatoria
 exports.validarCategoria = (datos) => {
     const { descripcion } = datos;

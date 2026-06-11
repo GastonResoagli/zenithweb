@@ -103,7 +103,65 @@ $$;
 
 
 -- ============================================================================
--- 4) registrar_venta(datos_venta JSONB, detalles JSONB) -> id_venta
+-- 4) actualizar_entrada(id_registro, cantidad, precio_compra)
+-- ----------------------------------------------------------------------------
+-- PROCEDIMIENTO: corrige una entrada de stock ya registrada. Ajusta el stock
+-- del producto por la DIFERENCIA entre la cantidad nueva y la anterior, y
+-- recalcula el total. Solo aplica a movimientos de tipo 'entrada' (las
+-- 'salidas' provienen de ventas y no se editan desde acá).
+-- ============================================================================
+CREATE OR REPLACE PROCEDURE actualizar_entrada(
+    p_id_registro   INT,
+    p_cantidad      INT,
+    p_precio_compra NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_producto  INT;
+    v_cantidad_ant INT;
+    v_tipo         VARCHAR(10);
+    v_stock        INT;
+BEGIN
+    -- 1) recupera la entrada original y bloquea la fila (evita carreras)
+    SELECT id_producto, cantidad, tipo
+      INTO v_id_producto, v_cantidad_ant, v_tipo
+      FROM registro_inventario
+     WHERE id_registro = p_id_registro
+     FOR UPDATE;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Movimiento % no encontrado', p_id_registro;
+    END IF;
+
+    -- 2) solo se pueden editar entradas (las salidas vienen de ventas)
+    IF v_tipo <> 'entrada' THEN
+        RAISE EXCEPTION 'Solo se pueden actualizar movimientos de tipo entrada';
+    END IF;
+
+    -- 3) ajusta el stock por la diferencia (cantidad nueva - anterior)
+    UPDATE producto
+       SET stock = stock + (p_cantidad - v_cantidad_ant)
+     WHERE id_producto = v_id_producto
+    RETURNING stock INTO v_stock;
+
+    IF v_stock < 0 THEN
+        RAISE EXCEPTION 'La actualizacion dejaria el stock en negativo';
+    END IF;
+
+    -- 4) actualiza el registro y recalcula el total
+    UPDATE registro_inventario
+       SET cantidad      = p_cantidad,
+           precio_compra = p_precio_compra,
+           total         = p_cantidad * p_precio_compra
+     WHERE id_registro = p_id_registro;
+END;
+$$;
+-- Uso: CALL actualizar_entrada(12, 8, 1600.00);
+
+
+-- ============================================================================
+-- 5) registrar_venta(datos_venta JSONB, detalles JSONB) -> id_venta
 -- ----------------------------------------------------------------------------
 -- FUNCION ESTRELLA: registra una venta completa en una sola operacion atomica.
 -- Por cada detalle: inserta la linea, descuenta stock y registra la 'salida'

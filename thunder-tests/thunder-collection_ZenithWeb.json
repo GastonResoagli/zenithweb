@@ -1,0 +1,290 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "ZenithWeb API",
+  "dateExported": "2026-06-10T00:00:00.000Z",
+  "version": "1.2",
+  "folders": [
+    { "_id": "fld-auth", "name": "1. Auth", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 10000 },
+    { "_id": "fld-prod", "name": "2. Productos", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 20000 },
+    { "_id": "fld-cat", "name": "3. Categorias", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 30000 },
+    { "_id": "fld-vta", "name": "4. Ventas", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 40000 },
+    { "_id": "fld-mov", "name": "5. Movimientos", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 50000 },
+    { "_id": "fld-rep", "name": "6. Reportes", "containerId": "", "created": "2026-06-10T00:00:00.000Z", "sortNum": 60000 }
+  ],
+  "requests": [
+    {
+      "_id": "req-login",
+      "colId": "zenithweb-col",
+      "containerId": "fld-auth",
+      "name": "POST Login (guarda token)",
+      "url": "{{baseUrl}}/api/auth/login",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"usuario\": \"gerente@zenith.com\",\n  \"password\": \"gerente123\"\n}",
+        "form": []
+      },
+      "tests": [
+        { "type": "set-env-var", "custom": "json.token", "action": "setto", "value": "token" },
+        { "type": "res-code", "action": "equal", "value": "200" }
+      ],
+      "docs": "Usuarios seed: gerente@zenith.com/gerente123, operador@zenith.com/operador123, vendedor@zenith.com/vendedor123, admin@zenith.com/admin123. El test guarda el token en el environment."
+    },
+    {
+      "_id": "req-prod-list",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "GET Listar productos",
+      "url": "{{baseUrl}}/api/productos",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-prod-list-activos",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "GET Listar productos (solo activos)",
+      "url": "{{baseUrl}}/api/productos?soloActivos=true",
+      "method": "GET",
+      "sortNum": 15000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [ { "name": "soloActivos", "value": "true", "isPath": false } ],
+      "tests": []
+    },
+    {
+      "_id": "req-prod-byid",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "GET Producto por id",
+      "url": "{{baseUrl}}/api/productos/{{id_producto}}",
+      "method": "GET",
+      "sortNum": 20000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-prod-create",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "POST Crear producto",
+      "url": "{{baseUrl}}/api/productos",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"nombre\": \"Panel de Prueba 700W\",\n  \"descripcion\": \"Producto creado desde Thunder Client\",\n  \"id_categoria\": 1,\n  \"stock\": 10,\n  \"precio_compra\": 100000,\n  \"precio_venta\": 150000\n}",
+        "form": []
+      },
+      "tests": [
+        { "type": "set-env-var", "custom": "json.id_producto", "action": "setto", "value": "id_producto" }
+      ],
+      "docs": "Requiere rol gerente u operador_stock. Nombre, stock, precio_compra, precio_venta e id_categoria son obligatorios."
+    },
+    {
+      "_id": "req-prod-update",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "PUT Actualizar producto",
+      "url": "{{baseUrl}}/api/productos/{{id_producto}}",
+      "method": "PUT",
+      "sortNum": 40000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"nombre\": \"Panel de Prueba 700W (editado)\",\n  \"descripcion\": \"Descripcion actualizada\",\n  \"id_categoria\": 1,\n  \"stock\": 25,\n  \"precio_compra\": 110000,\n  \"precio_venta\": 160000\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "req-prod-estado",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "PATCH Cambiar estado (activar/desactivar)",
+      "url": "{{baseUrl}}/api/productos/{{id_producto}}/estado",
+      "method": "PATCH",
+      "sortNum": 50000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"estado\": false\n}",
+        "form": []
+      },
+      "tests": []
+    },
+    {
+      "_id": "req-prod-delete",
+      "colId": "zenithweb-col",
+      "containerId": "fld-prod",
+      "name": "DELETE Baja logica producto",
+      "url": "{{baseUrl}}/api/productos/{{id_producto}}",
+      "method": "DELETE",
+      "sortNum": 60000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-cat-list",
+      "colId": "zenithweb-col",
+      "containerId": "fld-cat",
+      "name": "GET Listar categorias",
+      "url": "{{baseUrl}}/api/categorias",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-cat-create",
+      "colId": "zenithweb-col",
+      "containerId": "fld-cat",
+      "name": "POST Crear categoria",
+      "url": "{{baseUrl}}/api/categorias",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"descripcion\": \"Accesorios Varios\"\n}",
+        "form": []
+      },
+      "tests": [],
+      "docs": "Requiere rol gerente u operador_stock."
+    },
+    {
+      "_id": "req-vta-list",
+      "colId": "zenithweb-col",
+      "containerId": "fld-vta",
+      "name": "GET Listar ventas",
+      "url": "{{baseUrl}}/api/ventas",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-vta-byid",
+      "colId": "zenithweb-col",
+      "containerId": "fld-vta",
+      "name": "GET Venta por id",
+      "url": "{{baseUrl}}/api/ventas/{{id_venta}}",
+      "method": "GET",
+      "sortNum": 20000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": []
+    },
+    {
+      "_id": "req-vta-create",
+      "colId": "zenithweb-col",
+      "containerId": "fld-vta",
+      "name": "POST Registrar venta",
+      "url": "{{baseUrl}}/api/ventas",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"tipo_documento\": \"Factura\",\n  \"documento_cliente\": \"20-12345678-9\",\n  \"nombre_cliente\": \"Cliente de Prueba\",\n  \"monto_pago\": 300000,\n  \"monto_cambio\": 0,\n  \"monto_total\": 120000,\n  \"detalles\": [\n    { \"id_producto\": 1, \"cantidad\": 1, \"precio_venta\": 120000 }\n  ]\n}",
+        "form": []
+      },
+      "tests": [],
+      "docs": "Requiere rol gerente o vendedor. El id_usuario se toma del token, no del body. detalles debe tener al menos 1 producto y stock suficiente."
+    },
+    {
+      "_id": "req-mov-list",
+      "colId": "zenithweb-col",
+      "containerId": "fld-mov",
+      "name": "GET Historial de movimientos",
+      "url": "{{baseUrl}}/api/movimientos",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "tests": [],
+      "docs": "Requiere rol gerente u operador_stock."
+    },
+    {
+      "_id": "req-rep-list",
+      "colId": "zenithweb-col",
+      "containerId": "fld-rep",
+      "name": "GET Reporte de movimientos (filtros)",
+      "url": "{{baseUrl}}/api/reportes?fechaDesde=2025-01-01&fechaHasta=2025-12-31",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [
+        { "name": "fechaDesde", "value": "2025-01-01", "isPath": false },
+        { "name": "fechaHasta", "value": "2025-12-31", "isPath": false }
+      ],
+      "tests": [],
+      "docs": "Solo rol gerente. Filtros opcionales por query: fechaDesde, fechaHasta, tipo (entrada/salida), id_producto."
+    },
+    {
+      "_id": "req-rep-pdf",
+      "colId": "zenithweb-col",
+      "containerId": "fld-rep",
+      "name": "POST Generar reporte PDF",
+      "url": "{{baseUrl}}/api/reportes",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-06-10T00:00:00.000Z",
+      "modified": "2026-06-10T00:00:00.000Z",
+      "headers": [ { "name": "Authorization", "value": "Bearer {{token}}" } ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"fechaDesde\": \"2025-01-01\",\n  \"fechaHasta\": \"2025-12-31\",\n  \"tipo\": \"\",\n  \"id_producto\": \"\"\n}",
+        "form": []
+      },
+      "tests": [],
+      "docs": "Solo rol gerente. Devuelve un PDF binario (Content-Type application/pdf)."
+    }
+  ]
+}

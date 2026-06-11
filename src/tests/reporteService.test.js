@@ -7,6 +7,10 @@ jest.mock('../services/ventaService');
 
 describe('Pruebas Unitarias - Reporte Service', () => {
 
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
     test('PU-11 Debe obtener movimientos filtrados', async () => {
 
         const movimientosMock = [
@@ -18,7 +22,15 @@ describe('Pruebas Unitarias - Reporte Service', () => {
 
         reporteRepository.getMovimientos.mockResolvedValue(movimientosMock);
 
-        const resultado = await reporteService.getMovimientos({});
+        const filtros = { tipo: 'entrada', id_producto: '21' };
+
+        const resultado = await reporteService.getMovimientos(filtros);
+
+        // Debe pasar los filtros al repositorio EXACTAMENTE como llegaron.
+        // Si se cambia algún valor (p. ej. id_producto '21' -> '22') la aserción falla.
+        expect(reporteRepository.getMovimientos).toHaveBeenCalledWith(
+            { tipo: 'entrada', id_producto: '21' }
+        );
 
         expect(resultado).toEqual(movimientosMock);
     });
@@ -37,6 +49,9 @@ describe('Pruebas Unitarias - Reporte Service', () => {
         ]);
 
         const resultado = await reporteService.generarPDF({});
+
+        // El PDF se arma a partir de las ventas: debe haberse consultado el listado
+        expect(ventaService.consultarVentas).toHaveBeenCalledTimes(1);
 
         expect(Buffer.isBuffer(resultado)).toBe(true);
         expect(resultado.length).toBeGreaterThan(0);
