@@ -37,9 +37,9 @@ exports.getById = async (id) => {
 // registrado el movimiento de inventario 'salida'. Si algo falla, PostgreSQL revierte
 // todo el statement automáticamente (no quedan datos a medias).
 exports.crearVenta = async (venta, detalles) => {
-    // Los parámetros JSONB se envían como texto y se castean a jsonb dentro de la consulta.
+    
     const result = await db.query(
-        'SELECT registrar_venta($1::jsonb, $2::jsonb) AS id_venta',
+        'SELECT registrar_venta($1::jsonb, $2::jsonb) AS id_venta', //fun almacenada
         [JSON.stringify(venta), JSON.stringify(detalles)]
     );
 

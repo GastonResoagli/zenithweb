@@ -75,7 +75,7 @@ const Ventas = () => {
         if (detalles.length === 0) { setError('Agregá al menos un producto'); return; }
         try {
             // monto_pago y monto_cambio se simplifican al total (pago exacto); no se gestiona vuelto
-            await create({ ...datosVenta, monto_total: montoTotal, monto_pago: montoTotal, monto_cambio: 0, detalles });
+            await create({ ...datosVenta, monto_total: montoTotal, monto_pago: montoTotal, monto_cambio: 0, detalles }); //aca consume fun alm
             await cargarVentas();
             setFormulario(false);
             setDatosVenta(ventaVacia);

@@ -66,7 +66,7 @@ exports.update = async (id, producto) => {
 // Reutiliza la función almacenada dar_baja_producto (src/db/funciones.sql), que pone estado=false
 // y lanza una excepción si el id no existe.
 exports.remove = async (id) => {
-    await db.query('SELECT dar_baja_producto($1)', [parseInt(id)]);
+    await db.query('SELECT dar_baja_producto($1)', [parseInt(id)]); //fun almacenada
     return { message: 'Producto dado de baja' };
 }
 

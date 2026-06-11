@@ -1,13 +1,14 @@
-// ============================================================================
-// ReporteSubject  («ConcreteSubject» del patrón Observador)
-// ----------------------------------------------------------------------------
-// Sujeto concreto que orquesta la generación del PDF de reportes. Hereda de
-// Subject la mecánica de suscripción/notificación y, cada vez que cambia su
-// estado, avisa a todos los observadores (NotificacionObserver, LoggerObserver).
-//
-// La construcción real del PDF se delega en reporteService.generarPDF, para no
-// duplicar la lógica de maquetación con pdfkit que ya existe.
-// ============================================================================
+/* 
+ ReporteSubject  («ConcreteSubject» del patrón Observador)
+
+Sujeto concreto que orquesta la generación del PDF de reportes. Hereda de
+ Subject la mecánica de suscripción/notificación y, cada vez que cambia su
+ estado, avisa a todos los observadores (NotificacionObserver, LoggerObserver).
+
+ La construcción real del PDF se delega en reporteService.generarPDF, para no
+ duplicar la lógica de maquetación con pdfkit que ya existe.
+*/
+
 const Subject = require('./Subject');
 const reporteService = require('../../services/reporteService');
 

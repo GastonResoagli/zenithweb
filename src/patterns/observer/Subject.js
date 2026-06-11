@@ -1,10 +1,10 @@
-// ============================================================================
-// Subject  (clase abstracta «Subject» del patrón Observador)
-// ----------------------------------------------------------------------------
-// Mantiene la lista de observadores y les avisa cuando ocurre un evento.
-// Las subclases concretas (p. ej. ReporteSubject) heredan esta mecánica de
-// suscripción/notificación y agregan su propia lógica de negocio.
-// ============================================================================
+/* 
+ Subject  (clase abstracta «Subject» del patrón Observador)
+
+ Mantiene la lista de observadores y les avisa cuando ocurre un evento.
+ Las subclases concretas (p. ej. ReporteSubject) heredan esta mecánica de
+ suscripción/notificación y agregan su propia lógica de negocio.
+*/
 class Subject {
     constructor() {
         // -observadores : Observer[*]  -> lista de suscriptores

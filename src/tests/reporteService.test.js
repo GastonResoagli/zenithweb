@@ -44,7 +44,7 @@ describe('Pruebas Unitarias - Reporte Service', () => {
                 documento_cliente: '12345678',
                 nombre_cliente: 'Juan Perez',
                 cantidad_items: 2,
-                monto_total: 5000
+                monto_total: 500
             }
         ]);
 

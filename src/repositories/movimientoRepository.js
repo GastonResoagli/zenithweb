@@ -16,7 +16,6 @@ exports.getAll = async () => {
 };
 
 // Registra una entrada de stock invocando el PROCEDURE almacenado registrar_entrada
-// (definido en src/db/funciones.sql). Ese procedimiento, en una única operación,
 // sube el stock del producto y deja registrado el movimiento 'entrada' en
 // registro_inventario. Lanza una excepción si el producto no existe.
 exports.registrarEntrada = async ({ id_producto, cantidad, precio_compra, id_usuario }) => {

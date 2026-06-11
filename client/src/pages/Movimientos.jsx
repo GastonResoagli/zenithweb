@@ -36,7 +36,7 @@ const Movimientos = () => {
     };
 
     // Abre el formulario en modo edición, precargado con los datos del movimiento
-    const editarEntrada = (m) => {
+    const editarEntrada = (m) => { //se llama fun alm
         setEditandoId(m.id_registro);
         setEntrada({ id_producto: m.id_producto, cantidad: m.cantidad, precio_compra: m.precio_compra });
         setFormulario(true);
@@ -62,17 +62,17 @@ const Movimientos = () => {
     };
 
     // Confirma el formulario: crea o actualiza según el modo
-    const guardarEntrada = async (e) => {
+    const guardarEntrada = async (e) => { 
         e.preventDefault();
         setError('');
         try {
             if (editandoId) {
-                await actualizarEntrada(editandoId, {
+                await actualizarEntrada(editandoId, { //se llama fun alm
                     cantidad: parseInt(entrada.cantidad),
                     precio_compra: parseFloat(entrada.precio_compra),
                 });
             } else {
-                await registrarEntrada({
+                await registrarEntrada({ //se llama fun alm
                     id_producto: parseInt(entrada.id_producto),
                     cantidad: parseInt(entrada.cantidad),
                     precio_compra: parseFloat(entrada.precio_compra),

@@ -27,7 +27,7 @@ exports.generarReportes = async (req, res) => {
         reporteSubject.agregarObservador(new NotificacionObserver());
         reporteSubject.agregarObservador(new LoggerObserver());
 
-        const pdfBuffer = await reporteSubject.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto });
+        const pdfBuffer = await reporteSubject.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto }); //
 
         // Enviamos el PDF directamente como archivo descargable sin guardar en disco
         res.set({

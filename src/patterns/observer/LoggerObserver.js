@@ -1,10 +1,9 @@
-// ============================================================================
-// LoggerObserver  («ConcreteObserver» del patrón Observador)
-// ----------------------------------------------------------------------------
-// Observador concreto que registra en el log cada cambio de estado de la
-// generación del reporte (trazabilidad / auditoría). Reacciona a todos los
-// eventos, no solo al de "completado".
-// ============================================================================
+/*
+ LoggerObserver  («ConcreteObserver» del patrón Observador)
+ Observador concreto que registra en el log cada cambio de estado de la
+ generación del reporte (trazabilidad / auditoría). Reacciona a todos los
+ eventos, no solo al de "completado".
+*/
 const Observer = require('./Observer');
 
 class LoggerObserver extends Observer {
