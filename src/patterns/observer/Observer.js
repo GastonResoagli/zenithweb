@@ -8,7 +8,7 @@
 
  class Observer {
     // Se invoca cuando el Subject notifica un evento.
-    // eslint-disable-next-line no-unused-vars
+
     actualizar(evento) {
         throw new Error('Observer.actualizar(evento) debe ser implementado por la subclase');
     }

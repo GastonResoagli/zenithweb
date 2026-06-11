@@ -4,3 +4,6 @@ dist/
 build/
 logs/
 *.log
+
+# Artefactos generados por las pruebas/demo (no van al repo)
+reporte.pdf
