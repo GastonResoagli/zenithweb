@@ -135,7 +135,7 @@ const Movimientos = () => {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            {['Fecha', 'Producto', 'Tipo', 'Cantidad', 'Usuario', ''].map(h => (
+                            {['Fecha', 'Producto', 'Tipo', 'Cantidad', ''].map(h => (
                                 <th key={h}>{h}</th>
                             ))}
                         </tr>
@@ -151,7 +151,6 @@ const Movimientos = () => {
                                     </span>
                                 </td>
                                 <td className="font-semibold">{m.cantidad}</td>
-                                <td className="text-muted">{m.nombre_usuario}</td>
                                 <td>
                                     {/* Solo las entradas se pueden editar (las salidas vienen de ventas) */}
                                     {m.tipo === 'entrada' && (
