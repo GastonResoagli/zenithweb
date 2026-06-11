@@ -1,24 +1,24 @@
-/* 
- Subject  (clase abstracta «Subject» del patrón Observador)
+/*
+ Sujeto  (clase abstracta «Sujeto» del patrón Observador)
 
  Mantiene la lista de observadores y les avisa cuando ocurre un evento.
- Las subclases concretas (p. ej. ReporteSubject) heredan esta mecánica de
+ Las subclases concretas (p. ej. SujetoReporte) heredan esta mecánica de
  suscripción/notificación y agregan su propia lógica de negocio.
 */
-class Subject {
+class Sujeto {
     constructor() {
-        // -observadores : Observer[*]  -> lista de suscriptores
+        // -observadores : Observador[*]  -> lista de suscriptores
         this.observadores = [];
     }
 
-    // +agregarObservador(o : Observer)  -> suscribe un observador (evita duplicados)
+    // +agregarObservador(o : Observador)  -> suscribe un observador (evita duplicados)
     agregarObservador(observador) {
         if (!this.observadores.includes(observador)) {
             this.observadores.push(observador);
         }
     }
 
-    // +eliminarObservador(o : Observer)  -> da de baja un observador
+    // +eliminarObservador(o : Observador)  -> da de baja un observador
     eliminarObservador(observador) {
         this.observadores = this.observadores.filter(o => o !== observador);
     }
@@ -29,4 +29,4 @@ class Subject {
     }
 }
 
-module.exports = Subject;
+module.exports = Sujeto;

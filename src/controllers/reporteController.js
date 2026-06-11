@@ -1,9 +1,9 @@
-// Controller de reportes. Actúa como «Client» del patrón Observador:
-// arma el ReporteSubject, le suscribe los observadores y dispara la generación.
+// Controller de reportes. Actúa como «Cliente» del patrón Observador:
+// arma el SujetoReporte, le suscribe los observadores y dispara la generación.
 const reporteService = require('../services/reporteService');
-const ReporteSubject = require('../patterns/observer/ReporteSubject');
-const NotificacionObserver = require('../patterns/observer/NotificacionObserver');
-const LoggerObserver = require('../patterns/observer/LoggerObserver');
+const SujetoReporte = require('../patterns/observer/SujetoReporte');
+const ObservadorNotificacion = require('../patterns/observer/ObservadorNotificacion');
+const ObservadorLogger = require('../patterns/observer/ObservadorLogger');
 
 // GET /api/reportes -> movimientos filtrados (los filtros llegan por query string)
 exports.getMovimientos = async (req, res) => {
@@ -21,13 +21,13 @@ exports.generarReportes = async (req, res) => {
     try {
         const { fechaDesde, fechaHasta, tipo, id_producto } = req.body;
 
-        // Patrón Observador: el Subject genera el PDF y notifica a los observadores
+        // Patrón Observador: el Sujeto genera el PDF y notifica a los observadores
         // suscriptos (uno avisa al usuario, otro deja registro en el log).
-        const reporteSubject = new ReporteSubject();
-        reporteSubject.agregarObservador(new NotificacionObserver());
-        reporteSubject.agregarObservador(new LoggerObserver());
+        const sujetoReporte = new SujetoReporte();
+        sujetoReporte.agregarObservador(new ObservadorNotificacion());
+        sujetoReporte.agregarObservador(new ObservadorLogger());
 
-        const pdfBuffer = await reporteSubject.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto }); //
+        const pdfBuffer = await sujetoReporte.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto });
 
         // Enviamos el PDF directamente como archivo descargable sin guardar en disco
         res.set({

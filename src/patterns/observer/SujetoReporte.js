@@ -1,15 +1,15 @@
-/* 
- ReporteSubject  («ConcreteSubject» del patrón Observador)
+/*
+ SujetoReporte  («SujetoConcreto» del patrón Observador)
 
 Sujeto concreto que orquesta la generación del PDF de reportes. Hereda de
- Subject la mecánica de suscripción/notificación y, cada vez que cambia su
- estado, avisa a todos los observadores (NotificacionObserver, LoggerObserver).
+ Sujeto la mecánica de suscripción/notificación y, cada vez que cambia su
+ estado, avisa a todos los observadores (ObservadorNotificacion, ObservadorLogger).
 
  La construcción real del PDF se delega en reporteService.generarPDF, para no
  duplicar la lógica de maquetación con pdfkit que ya existe.
 */
 
-const Subject = require('./Subject');
+const Sujeto = require('./Sujeto');
 const reporteService = require('../../services/reporteService');
 
 // Estados posibles del reporte (-estado : EstadoReporte)
@@ -20,7 +20,7 @@ const EstadoReporte = Object.freeze({
     ERROR: 'ERROR',
 });
 
-class ReporteSubject extends Subject {
+class SujetoReporte extends Sujeto {
     constructor() {
         super();
         // -estado : EstadoReporte
@@ -46,7 +46,7 @@ class ReporteSubject extends Subject {
         try {
             const pdfBuffer = await reporteService.generarPDF(filtros);
 
-            // Reporte listo: avisa a los observadores (NotificacionObserver, LoggerObserver)
+            // Reporte listo: avisa a los observadores (ObservadorNotificacion, ObservadorLogger)
             this.setEstado({
                 estado: EstadoReporte.COMPLETADO,
                 filtros,
@@ -63,5 +63,5 @@ class ReporteSubject extends Subject {
     }
 }
 
-module.exports = ReporteSubject;
+module.exports = SujetoReporte;
 module.exports.EstadoReporte = EstadoReporte;

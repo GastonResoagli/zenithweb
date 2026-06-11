@@ -1,15 +1,15 @@
 /*
-NotificacionObserver  («ConcreteObserver» del patrón Observador)
+ObservadorNotificacion  («ObservadorConcreto» del patrón Observador)
 
  Observador concreto cuya responsabilidad es avisar al usuario que el PDF del
  reporte está listo. Aquí se resuelve con un mensaje por consola; en un
  entorno real podría enviar un email, un websocket o una notificación push.
 */
 
-const Observer = require('./Observer');
-const { EstadoReporte } = require('./ReporteSubject');
+const Observador = require('./Observador');
+const { EstadoReporte } = require('./SujetoReporte');
 
-class NotificacionObserver extends Observer {
+class ObservadorNotificacion extends Observador {
     // +actualizar(evento)  -> reacciona solo cuando el reporte queda COMPLETADO
     actualizar(evento) {
         if (evento.estado === EstadoReporte.COMPLETADO) {
@@ -18,4 +18,4 @@ class NotificacionObserver extends Observer {
     }
 }
 
-module.exports = NotificacionObserver;
+module.exports = ObservadorNotificacion;

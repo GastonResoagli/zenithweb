@@ -1,12 +1,12 @@
 /*
- LoggerObserver  («ConcreteObserver» del patrón Observador)
+ ObservadorLogger  («ObservadorConcreto» del patrón Observador)
  Observador concreto que registra en el log cada cambio de estado de la
  generación del reporte (trazabilidad / auditoría). Reacciona a todos los
  eventos, no solo al de "completado".
 */
-const Observer = require('./Observer');
+const Observador = require('./Observador');
 
-class LoggerObserver extends Observer {
+class ObservadorLogger extends Observador {
     // +actualizar(evento)  -> deja constancia del evento en el log
     actualizar(evento) {
         const fecha = new Date().toISOString();
@@ -20,4 +20,4 @@ class LoggerObserver extends Observer {
     }
 }
 
-module.exports = LoggerObserver;
+module.exports = ObservadorLogger;
