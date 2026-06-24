@@ -1,46 +1,29 @@
 // Controller de ventas.
+// Sin try/catch: Express 5 reenvía los errores al middleware central (errorHandler).
 const ventaService = require('../services/ventaService');
 const { validarVenta } = require('../utils/validators');
+const { ErrorNoEncontrado } = require('../utils/errors');
 
 // GET /api/ventas -> listado de ventas (con cantidad de ítems por venta)
 exports.consultarVentas = async (req, res) => {
-    try {
-        const data = await ventaService.consultarVentas();
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    const data = await ventaService.consultarVentas();
+    res.json(data);
 };
 
 // GET /api/ventas/:id -> una venta con el detalle de sus productos
-exports.getById = async (req, res) => {
-    try {
-        const data = await ventaService.getById(req.params.id);
-        if (!data) return res.status(404).json({ error: 'Venta no encontrada' });
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+exports.obtenerPorId = async (req, res) => {
+    const data = await ventaService.obtenerPorId(req.params.id);
+    if (!data) throw new ErrorNoEncontrado('Venta no encontrada');
+    res.json(data);
 };
 
 // POST /api/ventas -> registra una venta nueva con sus líneas de detalle
 exports.agregarVenta = async (req, res) => {
-    try {
-        validarVenta(req.body);
-        // Separamos los detalles de línea del resto de los datos de la venta
-        const { detalles, ...venta } = req.body;
-        // El id_usuario se toma del token JWT para evitar suplantación de identidad
-        venta.id_usuario = req.user.id_usuario;
-        const data = await ventaService.creaVenta(venta, detalles);
-        res.status(201).json(data);
-    } catch (error) {
-        if (error.message.includes('venta debe tener')) {
-            return res.status(400).json({ error: error.message });
-        }
-        // Stock insuficiente lo lanza la función almacenada registrar_venta -> 409 (conflicto)
-        if (error.message.includes('Stock insuficiente')) {
-            return res.status(409).json({ error: error.message });
-        }
-        res.status(500).json({ error: error.message });
-    }
+    validarVenta(req.body);
+    // Separamos los detalles de línea del resto de los datos de la venta
+    const { detalles, ...venta } = req.body;
+    // El id_usuario se toma del token JWT para evitar suplantación de identidad
+    venta.id_usuario = req.user.id_usuario;
+    const data = await ventaService.crearVenta(venta, detalles);
+    res.status(201).json(data);
 };

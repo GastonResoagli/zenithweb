@@ -1,7 +1,7 @@
 // Página de movimientos de stock: lista el historial y permite registrar/editar entradas.
 import { useState, useEffect } from 'react';
-import { getAll, registrarEntrada, actualizarEntrada } from '../api/movimientos';
-import { getAll as getProductos } from '../api/productos';
+import { obtenerMovimientos, registrarEntrada, actualizarEntrada } from '../api/movimientos';
+import { obtenerProductos } from '../api/productos';
 import './Movimientos.css';
 
 // Datos por defecto de una entrada nueva
@@ -19,12 +19,12 @@ const Movimientos = () => {
     useEffect(() => { Promise.all([cargarMovimientos(), cargarProductos()]); }, []);
 
     const cargarMovimientos = async () => {
-        try { setMovimientos(await getAll()); } catch { setError('Error al cargar movimientos'); }
+        try { setMovimientos(await obtenerMovimientos()); } catch { setError('Error al cargar movimientos'); }
     };
 
     // Solo productos activos: no se repone algo dado de baja
     const cargarProductos = async () => {
-        try { setProductos(await getProductos({ soloActivos: true })); } catch { setError('Error al cargar productos'); }
+        try { setProductos(await obtenerProductos({ soloActivos: true })); } catch { setError('Error al cargar productos'); }
     };
 
     // Abre el formulario en modo alta (entrada nueva)

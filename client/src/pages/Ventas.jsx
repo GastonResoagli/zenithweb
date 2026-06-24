@@ -1,7 +1,7 @@
 // Página de ventas: lista las ventas y permite registrar nuevas.
 import { useState, useEffect } from 'react';
-import { getAll, getById, create } from '../api/ventas';
-import { getAll as getProductos } from '../api/productos';
+import { obtenerVentas, obtenerPorId, crear } from '../api/ventas';
+import { obtenerProductos } from '../api/productos';
 import './Ventas.css';
 
 // Datos por defecto de una venta nueva
@@ -24,13 +24,13 @@ const Ventas = () => {
 
 
      const cargarVentas = async () => {
-        try { setVentas(await getAll()); } catch { setError('Error al cargar ventas'); }
+        try { setVentas(await obtenerVentas()); } catch { setError('Error al cargar ventas'); }
     };
 
 
     // Solo productos activos: no se puede vender algo dado de baja
     const cargarProductos = async () => {
-        try { setProductos(await getProductos({ soloActivos: true })); } catch {setError('Error al cargar productos');}
+        try { setProductos(await obtenerProductos({ soloActivos: true })); } catch {setError('Error al cargar productos');}
     };
 
      // Carga inicial en paralelo de ventas y productos
@@ -75,7 +75,7 @@ const Ventas = () => {
         if (detalles.length === 0) { setError('Agregá al menos un producto'); return; }
         try {
             // monto_pago y monto_cambio se simplifican al total (pago exacto); no se gestiona vuelto
-            await create({ ...datosVenta, monto_total: montoTotal, monto_pago: montoTotal, monto_cambio: 0, detalles }); //aca consume fun alm
+            await crear({ ...datosVenta, monto_total: montoTotal, monto_pago: montoTotal, monto_cambio: 0, detalles }); //aca consume fun alm
             await cargarVentas();
             setFormulario(false);
             setDatosVenta(ventaVacia);
@@ -85,7 +85,7 @@ const Ventas = () => {
 
     // Abre el modal con el detalle completo de una venta ya registrada
     const verDetalle = async (id) => {
-        try { setVentaDetalle(await getById(id)); } catch { setError('Error al cargar detalle'); }
+        try { setVentaDetalle(await obtenerPorId(id)); } catch { setError('Error al cargar detalle'); }
     };
 
     return (

@@ -21,19 +21,12 @@ SET client_encoding TO 'UTF8';
 -- PASO 1 — TABLAS
 -- ############################################################################
 
-CREATE TABLE IF NOT EXISTS rol (
-    id_rol         SERIAL PRIMARY KEY,
-    descripcion    VARCHAR(100),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS usuario (
     id_usuario      SERIAL PRIMARY KEY,
     documento       VARCHAR(20),
     nombre_completo VARCHAR(100),
     correo          VARCHAR(100),
     clave           TEXT,
-    id_rol          INTEGER REFERENCES rol(id_rol),
     estado          BOOLEAN,
     rol             VARCHAR(20) NOT NULL DEFAULT 'vendedor'
 );
@@ -46,7 +39,6 @@ CREATE TABLE IF NOT EXISTS categoria (
 
 CREATE TABLE IF NOT EXISTS producto (
     id_producto   SERIAL PRIMARY KEY,
-    codigo        VARCHAR(50),
     nombre        VARCHAR(100),
     descripcion   TEXT,
     id_categoria  INTEGER REFERENCES categoria(id_categoria),
@@ -87,11 +79,8 @@ CREATE TABLE IF NOT EXISTS cliente (
     estado     BOOLEAN
 );
 
-CREATE TABLE IF NOT EXISTS permiso (
-    id_permiso  SERIAL PRIMARY KEY,
-    id_rol      INTEGER REFERENCES rol(id_rol),
-    nombre_menu VARCHAR(100)
-);
+-- Relación venta -> cliente (por ALTER, porque cliente se crea después de venta)
+ALTER TABLE venta ADD COLUMN IF NOT EXISTS id_cliente INTEGER REFERENCES cliente(id_cliente);
 
 
 -- ############################################################################
@@ -140,28 +129,7 @@ BEGIN
 END;
 $$;
 
--- 2) dar_baja_producto(id_producto) -> id_producto dado de baja (baja lógica)
-CREATE OR REPLACE FUNCTION dar_baja_producto(p_id_producto INT)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_id INTEGER;
-BEGIN
-    UPDATE producto
-       SET estado = false
-     WHERE id_producto = p_id_producto
-    RETURNING id_producto INTO v_id;
-
-    IF v_id IS NULL THEN
-        RAISE EXCEPTION 'Producto % no encontrado', p_id_producto;
-    END IF;
-
-    RETURN v_id;
-END;
-$$;
-
--- 3) registrar_entrada(id_producto, cantidad, precio_compra, id_usuario)
+-- 2) registrar_entrada(id_producto, cantidad, precio_compra, id_usuario)
 CREATE OR REPLACE PROCEDURE registrar_entrada(
     p_id_producto   INT,
     p_cantidad      INT,
@@ -240,17 +208,28 @@ AS $$
 DECLARE
     v_id_venta   INTEGER;
     v_id_usuario INTEGER := (p_venta->>'id_usuario')::INT;
+    v_id_cliente INTEGER;
+    v_dni        VARCHAR := NULLIF(p_venta->>'documento_cliente', '');
     detalle      JSONB;
     v_id_prod    INTEGER;
     v_cantidad   INTEGER;
     v_precio     NUMERIC;
     v_subtotal   NUMERIC;
 BEGIN
+    -- 0) resolver el cliente por documento: si no existe, se crea (todo dentro de la transaccion)
+    IF v_dni IS NOT NULL THEN
+        INSERT INTO cliente (dni, nombre, estado)
+        VALUES (v_dni, p_venta->>'nombre_cliente', true)
+        ON CONFLICT (dni) DO NOTHING;
+        SELECT id_cliente INTO v_id_cliente FROM cliente WHERE dni = v_dni;
+    END IF;
+
     INSERT INTO venta
-        (id_usuario, tipo_documento, documento_cliente, nombre_cliente,
+        (id_usuario, id_cliente, tipo_documento, documento_cliente, nombre_cliente,
          monto_pago, monto_cambio, monto_total, fecha)
     VALUES
         (v_id_usuario,
+         v_id_cliente,
          p_venta->>'tipo_documento',
          p_venta->>'documento_cliente',
          p_venta->>'nombre_cliente',
@@ -295,6 +274,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_categoria_descripcion
 CREATE UNIQUE INDEX IF NOT EXISTS ux_producto_nombre
     ON producto (LOWER(nombre));
 
+CREATE UNIQUE INDEX IF NOT EXISTS ux_cliente_dni
+    ON cliente (dni);
+
 
 -- ############################################################################
 -- PASO 5 — RESET + DATOS DE EJEMPLO
@@ -303,7 +285,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_producto_nombre
 BEGIN;
 
 -- 5.1) Limpieza (orden por FKs; RESTART IDENTITY reinicia los contadores)
-TRUNCATE detalle_venta, registro_inventario, venta, producto, categoria
+TRUNCATE detalle_venta, registro_inventario, venta, cliente, producto, categoria
     RESTART IDENTITY CASCADE;
 
 -- 5.2) Usuarios (red de seguridad: solo se cargan si no existen por correo)

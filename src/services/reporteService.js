@@ -4,7 +4,7 @@ const ventaService = require('../services/ventaService');
 const reporteRepository = require('../repositories/reporteRepository');
 
 // Movimientos filtrados (lo consume la tabla del frontend)
-exports.getMovimientos = (filtros) => reporteRepository.getMovimientos(filtros);
+exports.obtenerMovimientos = (filtros) => reporteRepository.obtenerMovimientos(filtros);
 
 // --- Constantes de maquetación del PDF ---
 // Definición de las columnas de la tabla: etiqueta, posición X y ancho de cada una
@@ -37,9 +37,23 @@ function drawRow(doc, values, y, bgColor) {
     });
 }
 
+// Filtra las ventas por rango de fechas (ambos límites son opcionales e inclusivos)
+function filtrarVentasPorFecha(ventas, fechaDesde, fechaHasta) {
+    const desde = fechaDesde ? new Date(`${fechaDesde}T00:00:00`) : null;
+    const hasta = fechaHasta ? new Date(`${fechaHasta}T23:59:59`) : null;
+    return ventas.filter(v => {
+        const fecha = new Date(v.fecha);
+        if (desde && fecha < desde) return false;
+        if (hasta && fecha > hasta) return false;
+        return true;
+    });
+}
+
 // Genera el PDF del reporte de ventas en memoria y lo devuelve como Buffer (no se guarda en disco)
 exports.generarPDF = async (filtros) => {
-    const datos = await ventaService.consultarVentas(); // Reemplaza getMovimientos según diagrama
+    // Trae las ventas y aplica el filtro de fechas recibido (el reporte se acota al período pedido)
+    const todas = await ventaService.consultarVentas();
+    const datos = filtrarVentasPorFecha(todas, filtros.fechaDesde, filtros.fechaHasta);
 
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: MARGIN_L, size: 'A4', bufferPages: true });
@@ -54,8 +68,12 @@ exports.generarPDF = async (filtros) => {
         doc.fontSize(16).font('Helvetica-Bold').fillColor('#1e3a5f')
             .text('Reporte de Ventas', MARGIN_L, 50, { width: TABLE_W, align: 'center' });
 
+        // Si se filtró por período, lo indicamos en el encabezado del reporte
+        const rango = (filtros.fechaDesde || filtros.fechaHasta)
+            ? `   ·   Período: ${filtros.fechaDesde || 'inicio'} a ${filtros.fechaHasta || 'hoy'}`
+            : '';
         doc.fontSize(9).font('Helvetica').fillColor('#666666')
-            .text(`Generado: ${new Date().toLocaleString('es-AR')}`, MARGIN_L, 75, { width: TABLE_W, align: 'right', lineBreak: false });
+            .text(`Generado: ${new Date().toLocaleString('es-AR')}${rango}`, MARGIN_L, 75, { width: TABLE_W, align: 'right', lineBreak: false });
 
         // currentY es el "cursor" vertical: lo vamos bajando a medida que dibujamos
         let currentY = 100;

@@ -25,7 +25,7 @@ BEGIN;
 -- Se truncan en bloque por las claves foráneas. RESTART IDENTITY reinicia los
 -- contadores (los IDs vuelven a empezar en 1). CASCADE incluye dependientes.
 -- ----------------------------------------------------------------------------
-TRUNCATE detalle_venta, registro_inventario, venta, producto, categoria
+TRUNCATE detalle_venta, registro_inventario, venta, cliente, producto, categoria
     RESTART IDENTITY CASCADE;
 
 -- ----------------------------------------------------------------------------

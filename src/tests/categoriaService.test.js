@@ -37,7 +37,7 @@ describe('Pruebas Unitarias - Categoria Service', () => {
     test('PU-13 Debe crear una categoría con la descripción exacta', async () => {
 
         // No existe una categoría previa con esa descripción
-        categoriaRepository.getPorDescripcion.mockResolvedValue(undefined);
+        categoriaRepository.buscarPorDescripcion.mockResolvedValue(undefined);
 
         const categoriaCreada = { id_categoria: 8, descripcion: 'Cables y Conectores', estado: true };
         categoriaRepository.crearCategoria.mockResolvedValue(categoriaCreada);
@@ -46,7 +46,7 @@ describe('Pruebas Unitarias - Categoria Service', () => {
 
         // Debe chequear duplicados y crear con la descripción EXACTA recibida.
         // Si cambia el texto (p. ej. 'Cables y Conectores' -> 'Cables') la aserción falla.
-        expect(categoriaRepository.getPorDescripcion).toHaveBeenCalledWith('Cables y Conectores');
+        expect(categoriaRepository.buscarPorDescripcion).toHaveBeenCalledWith('Cables y Conectores');
         expect(categoriaRepository.crearCategoria).toHaveBeenCalledWith('Cables y Conectores');
 
         expect(resultado).toEqual(categoriaCreada);
@@ -55,7 +55,7 @@ describe('Pruebas Unitarias - Categoria Service', () => {
     test('PU-14 Debe rechazar una categoría duplicada y no crearla', async () => {
 
         // Ya existe una categoría con esa descripción
-        categoriaRepository.getPorDescripcion.mockResolvedValue({ id_categoria: 3, descripcion: 'Inversores' });
+        categoriaRepository.buscarPorDescripcion.mockResolvedValue({ id_categoria: 3, descripcion: 'Inversores' });
 
         await expect(
             categoriaService.crearCategoria('Inversores')

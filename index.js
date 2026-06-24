@@ -3,6 +3,12 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config(); // carga las variables de entorno definidas en el archivo .env
 
+// Sin JWT_SECRET no se pueden firmar/verificar tokens de forma segura: abortamos el arranque.
+if (!process.env.JWT_SECRET) {
+    console.error('Falta la variable de entorno JWT_SECRET. Definila en el archivo .env antes de iniciar el servidor.');
+    process.exit(1);
+}
+
 const app = express();
 
 // Middlewares globales
@@ -33,6 +39,11 @@ app.use('/api/reportes', authenticateToken, reporteRoutes);
 
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
 app.use('/api/categorias', authenticateToken, categoriaRoutes);
+
+// Middleware central de manejo de errores (debe ir DESPUÉS de las rutas).
+// Express 5 reenvía acá los errores lanzados en los controllers (incluso async).
+const errorHandler = require('./src/middleware/errorHandler');
+app.use(errorHandler);
 
 // Arranque del servidor: usa el puerto del entorno o 3000 por defecto
 const PORT = process.env.PORT || 3000;

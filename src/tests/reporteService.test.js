@@ -20,15 +20,15 @@ describe('Pruebas Unitarias - Reporte Service', () => {
             }
         ];
 
-        reporteRepository.getMovimientos.mockResolvedValue(movimientosMock);
+        reporteRepository.obtenerMovimientos.mockResolvedValue(movimientosMock);
 
         const filtros = { tipo: 'entrada', id_producto: '21' };
 
-        const resultado = await reporteService.getMovimientos(filtros);
+        const resultado = await reporteService.obtenerMovimientos(filtros);
 
         // Debe pasar los filtros al repositorio EXACTAMENTE como llegaron.
         // Si se cambia algún valor (p. ej. id_producto '21' -> '22') la aserción falla.
-        expect(reporteRepository.getMovimientos).toHaveBeenCalledWith(
+        expect(reporteRepository.obtenerMovimientos).toHaveBeenCalledWith(
             { tipo: 'entrada', id_producto: '21' }
         );
 

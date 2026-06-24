@@ -23,3 +23,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_categoria_descripcion
 -- Un producto no puede repetir su nombre
 CREATE UNIQUE INDEX IF NOT EXISTS ux_producto_nombre
     ON producto (LOWER(nombre));
+
+-- Un cliente no puede repetir su documento (habilita buscar/crear por dni en la venta)
+CREATE UNIQUE INDEX IF NOT EXISTS ux_cliente_dni
+    ON cliente (dni);

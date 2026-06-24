@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import * as api from '../api/productos';
 import * as catApi from '../api/categorias';
 import './Productos.css';
-const { setEstado } = api;
+const { cambiarEstado } = api;
 
 // Valores iniciales del formulario (campos en blanco)
 const camposVacios = {
@@ -24,13 +24,13 @@ const Productos = () => {
 
     // Trae la lista de productos del backend y la guarda en el estado
      const cargar = async () => {
-        try { setProductos(await api.getAll()); }
+        try { setProductos(await api.obtenerProductos()); }
         catch { setError('Error al cargar productos'); }
     };
 
     // Trae las categorías (para el selector del formulario y mostrar el nombre en la tabla)
     const cargarCategorias = async () => {
-        try { setCategorias(await catApi.getAll()); }
+        try { setCategorias(await catApi.obtenerCategorias()); }
         catch { /* el selector quedará vacío si falla */ }
     };
 
@@ -46,7 +46,7 @@ const Productos = () => {
         e.preventDefault();
         setCatError('');
         try {
-            await catApi.create(nuevaCat);
+            await catApi.crear(nuevaCat);
             setNuevaCat('');
             setCatForm(false);
             await cargarCategorias();
@@ -66,7 +66,7 @@ const Productos = () => {
         setModalConfirm(null);
         try {
             // Invertimos el estado actual: si estaba false lo ponemos true y viceversa
-            await setEstado(p.id_producto, p.estado === false);
+            await cambiarEstado(p.id_producto, p.estado === false);
             await cargar();
         } catch { setError('Error al cambiar el estado del producto'); }
     };
@@ -81,8 +81,8 @@ const Productos = () => {
     const guardar = async (e) => {
         e.preventDefault();
         try {
-            if (formulario === 'nuevo') await api.create(datos);
-            else await api.update(datos.id_producto, datos);
+            if (formulario === 'nuevo') await api.crear(datos);
+            else await api.actualizar(datos.id_producto, datos);
             await cargar();
             cerrar();
         } catch (err) { setError(err.message); }

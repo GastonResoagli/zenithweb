@@ -10,7 +10,7 @@ const headers = () => ({
 });
 
 // Lista de productos (GET); soloActivos filtra los dados de baja
-export const getAll = async ({ soloActivos = false } = {}) => {
+export const obtenerProductos = async ({ soloActivos = false } = {}) => {
     // soloActivos=true filtra los productos dados de baja (usado en el formulario de ventas)
     const url = soloActivos ? `${BASE}?soloActivos=true` : BASE;
     const res = await fetch(url, { headers: headers() });
@@ -19,7 +19,7 @@ export const getAll = async ({ soloActivos = false } = {}) => {
 };
 
 // Activa/desactiva un producto (PATCH alta/baja)
-export const setEstado = async (id, estado) => {
+export const cambiarEstado = async (id, estado) => {
     const res = await fetch(`${BASE}/${id}/estado`, {
         method: 'PATCH',
         headers: headers(),
@@ -30,7 +30,7 @@ export const setEstado = async (id, estado) => {
 };
 
 // Crea un producto (POST). Propaga el mensaje del backend (p. ej. nombre duplicado).
-export const create = async (producto) => {
+export const crear = async (producto) => {
     const res = await fetch(BASE, {
         method: 'POST',
         headers: headers(),
@@ -42,7 +42,7 @@ export const create = async (producto) => {
 };
 
 // Actualiza un producto existente (PUT). Propaga el mensaje del backend.
-export const update = async (id, producto) => {
+export const actualizar = async (id, producto) => {
     const res = await fetch(`${BASE}/${id}`, {
         method: 'PUT',
         headers: headers(),
@@ -51,14 +51,4 @@ export const update = async (id, producto) => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Error al actualizar producto');
     return data;
-};
-
-// Baja lógica del producto (DELETE)
-export const remove = async (id) => {
-    const res = await fetch(`${BASE}/${id}`, {
-        method: 'DELETE',
-        headers: headers(),
-    });
-    if (!res.ok) throw new Error('Error al eliminar producto');
-    return res.json();
 };

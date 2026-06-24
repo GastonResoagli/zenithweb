@@ -26,7 +26,7 @@ describe('Pruebas Unitarias - Venta Service', () => {
             { id_producto: 1, cantidad: 2, precio_venta: 165000 }
         ];
 
-        const resultado = await ventaService.creaVenta(venta, detalles);
+        const resultado = await ventaService.crearVenta(venta, detalles);
 
         // El service debe delegar en ventaRepository.crearVenta (registrar_venta) con
         // EXACTAMENTE estos datos. Se comparan contra valores literales: si se cambia

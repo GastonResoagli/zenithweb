@@ -1,7 +1,7 @@
 // Service de movimientos: delega la consulta del historial al repository.
 const movimientoRepository = require('../repositories/movimientoRepository');
 
-exports.getAll = () => movimientoRepository.getAll();
+exports.obtenerMovimientos = () => movimientoRepository.obtenerMovimientos();
 
 // Registra una entrada de stock. La suba de stock y el registro del movimiento
 // 'entrada' (todo o nada) los garantiza el procedure registrar_entrada, que se

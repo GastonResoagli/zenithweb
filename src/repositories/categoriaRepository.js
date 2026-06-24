@@ -1,5 +1,6 @@
 // Repository de categorías.
 const db = require('../db/connection');
+const { ErrorConflicto } = require('../utils/errors');
 
 // Trae todas las categorías ordenadas alfabéticamente por su descripción
 exports.obtenerCategorias = async () => {
@@ -8,7 +9,7 @@ exports.obtenerCategorias = async () => {
 };
 
 // Busca una categoría por su descripción (sin distinguir mayúsculas). undefined si no existe.
-exports.getPorDescripcion = async (descripcion) => {
+exports.buscarPorDescripcion = async (descripcion) => {
     const result = await db.query(
         'SELECT * FROM categoria WHERE LOWER(descripcion) = LOWER($1)',
         [descripcion.trim()]
@@ -27,7 +28,7 @@ exports.crearCategoria = async (descripcion) => {
         return result.rows[0];
     } catch (error) {
         // 23505 = unique_violation (garantía a nivel base de datos)
-        if (error.code === '23505') throw new Error('Ya existe una categoría con esa descripción');
+        if (error.code === '23505') throw new ErrorConflicto('Ya existe una categoría con esa descripción');
         throw error;
     }
 };

@@ -39,32 +39,8 @@ $$;
 -- Uso: SELECT descontar_stock(5, 3);
 
 
--- ============================================================================
--- 2) dar_baja_producto(id_producto) -> id_producto dado de baja
--- ----------------------------------------------------------------------------
--- FUNCION: baja LOGICA del producto (estado = false). No borra el registro,
--- para preservar el historial de ventas y movimientos.
--- ============================================================================
-CREATE OR REPLACE FUNCTION dar_baja_producto(p_id_producto INT)
-RETURNS INTEGER
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_id INTEGER;
-BEGIN
-    UPDATE producto
-       SET estado = false
-     WHERE id_producto = p_id_producto
-    RETURNING id_producto INTO v_id;
-
-    IF v_id IS NULL THEN
-        RAISE EXCEPTION 'Producto % no encontrado', p_id_producto;
-    END IF;
-
-    RETURN v_id;
-END;
-$$;
--- Uso: SELECT dar_baja_producto(5);
+-- (La función dar_baja_producto se eliminó: la baja lógica se hace con
+--  UPDATE producto SET estado=false en productoRepository.cambiarEstado — ver revisión L1.)
 
 
 -- ============================================================================
@@ -182,18 +158,29 @@ AS $$
 DECLARE
     v_id_venta   INTEGER;
     v_id_usuario INTEGER := (p_venta->>'id_usuario')::INT;
+    v_id_cliente INTEGER;
+    v_dni        VARCHAR := NULLIF(p_venta->>'documento_cliente', '');
     detalle      JSONB;
     v_id_prod    INTEGER;
     v_cantidad   INTEGER;
     v_precio     NUMERIC;
     v_subtotal   NUMERIC;
 BEGIN
+    -- 0) resolver el cliente por documento: si no existe, se crea (todo dentro de la transaccion)
+    IF v_dni IS NOT NULL THEN
+        INSERT INTO cliente (dni, nombre, estado)
+        VALUES (v_dni, p_venta->>'nombre_cliente', true)
+        ON CONFLICT (dni) DO NOTHING;
+        SELECT id_cliente INTO v_id_cliente FROM cliente WHERE dni = v_dni;
+    END IF;
+
     -- 1) cabecera de la venta
     INSERT INTO venta
-        (id_usuario, tipo_documento, documento_cliente, nombre_cliente,
+        (id_usuario, id_cliente, tipo_documento, documento_cliente, nombre_cliente,
          monto_pago, monto_cambio, monto_total, fecha)
     VALUES
         (v_id_usuario,
+         v_id_cliente,
          p_venta->>'tipo_documento',
          p_venta->>'documento_cliente',
          p_venta->>'nombre_cliente',

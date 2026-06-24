@@ -9,7 +9,7 @@ const authHeaders = () => ({
 });
 
 // Consulta movimientos filtrados. Arma el query string solo con los filtros que tengan valor.
-export const getMovimientos = async (filtros) => {
+export const obtenerMovimientos = async (filtros) => {
     const params = new URLSearchParams();
     if (filtros.fechaDesde) params.set('fechaDesde', filtros.fechaDesde);
     if (filtros.fechaHasta) params.set('fechaHasta', filtros.fechaHasta);

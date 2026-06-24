@@ -10,21 +10,21 @@ const headers = () => ({
 });
 
 // Listado de ventas (GET)
-export const getAll = async () => {
+export const obtenerVentas = async () => {
     const res = await fetch(BASE, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener ventas');
     return res.json();
 };
 
 // Una venta con su detalle (GET por id)
-export const getById = async (id) => {
+export const obtenerPorId = async (id) => {
     const res = await fetch(`${BASE}/${id}`, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener venta');
     return res.json();
 };
 
 // Registra una venta nueva (POST)
-export const create = async (venta) => {
+export const crear = async (venta) => {
     const res = await fetch(BASE, {
         method: 'POST',
         headers: headers(),

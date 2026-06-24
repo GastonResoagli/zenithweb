@@ -1,7 +1,7 @@
 // Página de inicio de sesión.
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../api/auth';
+import { iniciarSesion } from '../api/auth';
 import './Login.css';
 
 const Login = () => {
@@ -18,7 +18,7 @@ const Login = () => {
         setError('');
         setLoading(true);
         try {
-            const data = await login(usuario, password);
+            const data = await iniciarSesion(usuario, password);
             // Guardamos token y rol en localStorage para usarlos en el resto de la app
             localStorage.setItem('token', data.token);
             localStorage.setItem('rol', data.rol);

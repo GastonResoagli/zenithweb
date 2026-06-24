@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const BASE = `${API_URL}/api/auth`;
 
 // Envía las credenciales al backend; si son correctas devuelve { token, rol }
-export const login = async (usuario, password) => {
+export const iniciarSesion = async (usuario, password) => {
     const res = await fetch(`${BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

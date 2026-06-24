@@ -1,6 +1,6 @@
 // Página de reportes: consulta movimientos con filtros y permite descargar el PDF.
 import { useState } from 'react';
-import { getMovimientos, generarReporte } from '../api/reportes';
+import { obtenerMovimientos, generarReporte } from '../api/reportes';
 import './Reportes.css';
 
 const Reportes = () => {
@@ -21,7 +21,7 @@ const Reportes = () => {
         setError('');
         setCargando(true);
         try {
-            const data = await getMovimientos(filtros);
+            const data = await obtenerMovimientos(filtros);
             setMovimientos(data);
         } catch (err) {
             setError(err.message);

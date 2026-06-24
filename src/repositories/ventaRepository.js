@@ -1,5 +1,6 @@
 // Repository de ventas: consultas sobre venta, detalle_venta y registro_inventario.
 const db = require('../db/connection');
+const { ErrorConflicto } = require('../utils/errors');
 
 // Listado de ventas con la cantidad de líneas (ítems) de cada una.
 // LEFT JOIN + COUNT + GROUP BY para contar los detalles asociados a cada venta.
@@ -15,7 +16,7 @@ exports.consultarVentas = async () => {
 };
 
 // Una venta con su detalle completo (dos consultas: la venta y luego sus líneas)
-exports.getById = async (id) => {
+exports.obtenerPorId = async (id) => {
     const venta = await db.query('SELECT * FROM venta WHERE id_venta = $1', [id]);
     if (!venta.rows[0]) return null; // no existe la venta
 
@@ -33,16 +34,23 @@ exports.getById = async (id) => {
 
 // Registra una venta completa invocando la función almacenada registrar_venta
 // (definida en src/db/funciones.sql). Esa función, en una única operación atómica,
-// inserta la cabecera, recorre el detalle, descuenta el stock (validándolo) y deja
-// registrado el movimiento de inventario 'salida'. Si algo falla, PostgreSQL revierte
-// todo el statement automáticamente (no quedan datos a medias).
+// resuelve el cliente, inserta la cabecera, recorre el detalle, descuenta el stock
+// (validándolo) y deja registrado el movimiento de inventario 'salida'. Si algo falla,
+// PostgreSQL revierte todo el statement automáticamente (no quedan datos a medias).
 exports.crearVenta = async (venta, detalles) => {
-    
-    const result = await db.query(
-        'SELECT registrar_venta($1::jsonb, $2::jsonb) AS id_venta', //fun almacenada
-        [JSON.stringify(venta), JSON.stringify(detalles)]
-    );
+    try {
+        const result = await db.query(
+            'SELECT registrar_venta($1::jsonb, $2::jsonb) AS id_venta', // fun almacenada
+            [JSON.stringify(venta), JSON.stringify(detalles)]
+        );
 
-    // La función devuelve solo el id de la venta creada; devolvemos la venta completa con su detalle.
-    return exports.getById(result.rows[0].id_venta);
+        // La función devuelve solo el id de la venta creada; devolvemos la venta completa con su detalle.
+        return exports.obtenerPorId(result.rows[0].id_venta);
+    } catch (error) {
+        // La función lanza 'Stock insuficiente...' cuando un producto no tiene stock -> 409 (conflicto)
+        if (error.message && error.message.includes('Stock insuficiente')) {
+            throw new ErrorConflicto(error.message);
+        }
+        throw error;
+    }
 };

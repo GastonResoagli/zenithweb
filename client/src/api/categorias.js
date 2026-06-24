@@ -10,14 +10,14 @@ const headers = () => ({
 });
 
 // Lista de categorías (GET)
-export const getAll = async () => {
+export const obtenerCategorias = async () => {
     const res = await fetch(BASE, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener categorías');
     return res.json();
 };
 
 // Crea una categoría (POST). Propaga el mensaje del backend (p. ej. duplicado).
-export const create = async (descripcion) => {
+export const crear = async (descripcion) => {
     const res = await fetch(BASE, {
         method: 'POST',
         headers: headers(),

@@ -2,7 +2,7 @@
 const db = require('../db/connection');
 
 // Busca un usuario activo por su correo. $1 es un parámetro posicional (previene SQL injection).
-exports.getUsuarioPorCorreo = async (correo) => {
+exports.buscarUsuarioPorCorreo = async (correo) => {
     const result = await db.query(
         'SELECT * FROM usuario WHERE correo = $1 AND estado = true',
         [correo]

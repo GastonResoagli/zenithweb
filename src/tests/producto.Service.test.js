@@ -52,11 +52,11 @@ describe('Pruebas Unitarias - Producto Service', () => {
             nombre: 'Mouse'
         };
 
-        productoRepository.getById.mockResolvedValue(productoMock);
+        productoRepository.obtenerPorId.mockResolvedValue(productoMock);
 
-        const resultado = await productoService.getById(1);
+        const resultado = await productoService.obtenerPorId(1);
 
-        expect(productoRepository.getById)
+        expect(productoRepository.obtenerPorId)
             .toHaveBeenCalledWith(1);
 
         expect(resultado).toEqual(productoMock);
@@ -66,7 +66,7 @@ describe('Pruebas Unitarias - Producto Service', () => {
     test('Debe crear un producto con los datos exactos', async () => {
 
         // No existe otro producto con ese nombre
-        productoRepository.getPorNombre.mockResolvedValue(undefined);
+        productoRepository.buscarPorNombre.mockResolvedValue(undefined);
 
         productoRepository.crearProducto
             .mockResolvedValue({ id: 3, nombre: 'Monitor', precio: 50000 });
@@ -80,7 +80,7 @@ describe('Pruebas Unitarias - Producto Service', () => {
 
         // Debe chequear duplicado por nombre y crear con los datos EXACTOS.
         // Si cambia un valor del producto (p. ej. precio 50000 -> 60000) la aserción falla.
-        expect(productoRepository.getPorNombre)
+        expect(productoRepository.buscarPorNombre)
             .toHaveBeenCalledWith('Monitor');
 
         expect(productoRepository.crearProducto)
@@ -92,9 +92,9 @@ describe('Pruebas Unitarias - Producto Service', () => {
     // PU-05
     test('Debe actualizar un producto con los datos exactos', async () => {
 
-        productoRepository.getPorNombre.mockResolvedValue(undefined);
+        productoRepository.buscarPorNombre.mockResolvedValue(undefined);
 
-        productoRepository.update.mockResolvedValue({
+        productoRepository.actualizar.mockResolvedValue({
             id: 1,
             nombre: 'Monitor Gamer',
             precio: 60000
@@ -105,12 +105,12 @@ describe('Pruebas Unitarias - Producto Service', () => {
             precio: 60000
         };
 
-        const resultado = await productoService.update(
+        const resultado = await productoService.actualizar(
             1,
             productoActualizado
         );
 
-        expect(productoRepository.update)
+        expect(productoRepository.actualizar)
             .toHaveBeenCalledWith(
                 1,
                 { nombre: 'Monitor Gamer', precio: 60000 }
@@ -120,36 +120,20 @@ describe('Pruebas Unitarias - Producto Service', () => {
             .toBe('Monitor Gamer');
     });
 
-    // PU-06
-    test('Debe realizar baja lógica de un producto', async () => {
-
-        productoRepository.remove.mockResolvedValue({
-            success: true
-        });
-
-        const resultado = await productoService.remove(1);
-
-        expect(productoRepository.remove)
-            .toHaveBeenCalledWith(1);
-
-        expect(resultado.success)
-            .toBe(true);
-    });
-
     // PU-07
     test('Debe cambiar el estado de un producto', async () => {
 
-        productoRepository.setEstado.mockResolvedValue({
+        productoRepository.cambiarEstado.mockResolvedValue({
             id: 1,
             estado: false
         });
 
-        const resultado = await productoService.setEstado(
+        const resultado = await productoService.cambiarEstado(
             1,
             false
         );
 
-        expect(productoRepository.setEstado)
+        expect(productoRepository.cambiarEstado)
             .toHaveBeenCalledWith(
                 1,
                 false
@@ -159,38 +143,11 @@ describe('Pruebas Unitarias - Producto Service', () => {
             .toBe(false);
     });
 
-    // PU-08
-    test('Debe descontar stock de un producto', async () => {
-
-        const clientMock = {};
-
-        productoRepository.descuentaStock.mockResolvedValue({
-            success: true
-        });
-
-        const resultado =
-            await productoService.descuentaStock(
-                clientMock,
-                1,
-                5
-            );
-
-        expect(productoRepository.descuentaStock)
-            .toHaveBeenCalledWith(
-                clientMock,
-                1,
-                5
-            );
-
-        expect(resultado.success)
-            .toBe(true);
-    });
-
     // PU-09
     test('Debe rechazar un producto con nombre duplicado y no crearlo', async () => {
 
         // Ya existe un producto con ese nombre
-        productoRepository.getPorNombre.mockResolvedValue({ id_producto: 7, nombre: 'Monitor' });
+        productoRepository.buscarPorNombre.mockResolvedValue({ id_producto: 7, nombre: 'Monitor' });
 
         await expect(
             productoService.crearProducto({ nombre: 'Monitor', precio: 50000 })

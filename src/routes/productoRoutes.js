@@ -6,12 +6,12 @@ const authorizeRoles = require('../middleware/roleMiddleware');
 
 // Consulta pública: cualquier usuario autenticado puede ver el catálogo de productos
 router.get('/', productoController.obtenerProductos);
-router.get('/:id', productoController.getById);
+router.get('/:id', productoController.obtenerPorId);
 
-// Modificación restringida a gerentes y operadores de stock
+// Modificación restringida a gerentes y operadores de stock.
+// La baja se hace con PATCH .../estado (baja lógica), no con DELETE.
 router.post('/', authorizeRoles('gerente', 'operador_stock'), productoController.agregarProductos);
-router.put('/:id', authorizeRoles('gerente', 'operador_stock'), productoController.update);
-router.delete('/:id', authorizeRoles('gerente', 'operador_stock'), productoController.remove);
-router.patch('/:id/estado', authorizeRoles('gerente', 'operador_stock'), productoController.setEstado);
+router.put('/:id', authorizeRoles('gerente', 'operador_stock'), productoController.actualizar);
+router.patch('/:id/estado', authorizeRoles('gerente', 'operador_stock'), productoController.cambiarEstado);
 
 module.exports = router;

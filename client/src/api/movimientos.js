@@ -10,7 +10,7 @@ const headers = () => ({
 });
 
 // Trae el historial de movimientos
-export const getAll = async () => {
+export const obtenerMovimientos = async () => {
     const res = await fetch(BASE, { headers: headers() });
     if (!res.ok) throw new Error('Error al obtener movimientos');
     return res.json();

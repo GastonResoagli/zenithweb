@@ -4,6 +4,6 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 
 // POST /api/auth/login -> única ruta pública del sistema
-router.post('/login', authController.login);
+router.post('/login', authController.iniciarSesion);
 
 module.exports = router;

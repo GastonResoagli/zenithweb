@@ -2,7 +2,7 @@
 const db = require('../db/connection');
 
 // Devuelve los movimientos de inventario que cumplen los filtros recibidos (todos opcionales)
-exports.getMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) => {
+exports.obtenerMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) => {
     // Para salidas mostramos el nombre del cliente; para entradas, el operador que las registró
     let query = `
         SELECT ri.id_registro, ri.tipo, ri.cantidad, ri.total, ri.fecha,
