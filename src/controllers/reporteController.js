@@ -8,14 +8,14 @@ const ObservadorLogger = require('../patterns/observer/ObservadorLogger');
 
 // GET /api/reportes -> movimientos filtrados (los filtros llegan por query string)
 exports.obtenerMovimientos = async (req, res) => {
-    const { fechaDesde, fechaHasta, tipo, id_producto } = req.query;
-    const data = await reporteService.obtenerMovimientos({ fechaDesde, fechaHasta, tipo, id_producto });
+    const { fechaDesde, fechaHasta, tipo, id_producto, id_cliente } = req.query;
+    const data = await reporteService.obtenerMovimientos({ fechaDesde, fechaHasta, tipo, id_producto, id_cliente });
     res.json(data);
 };
 
 // POST /api/reportes -> genera el PDF del reporte y lo devuelve como archivo descargable
 exports.generarReporte = async (req, res) => {
-    const { fechaDesde, fechaHasta, tipo, id_producto } = req.body;
+    const { fechaDesde, fechaHasta, tipo, id_producto, id_cliente } = req.body;
 
     // Patrón Observador: el Sujeto genera el PDF y notifica a los observadores
     // suscriptos (uno avisa al usuario, otro deja registro en el log).
@@ -23,7 +23,7 @@ exports.generarReporte = async (req, res) => {
     sujetoReporte.agregarObservador(new ObservadorNotificacion());
     sujetoReporte.agregarObservador(new ObservadorLogger());
 
-    const pdfBuffer = await sujetoReporte.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto });
+    const pdfBuffer = await sujetoReporte.generarPDF({ fechaDesde, fechaHasta, tipo, id_producto, id_cliente });
 
     // Enviamos el PDF directamente como archivo descargable sin guardar en disco
     res.set({

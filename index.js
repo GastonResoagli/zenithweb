@@ -40,6 +40,9 @@ app.use('/api/reportes', authenticateToken, reporteRoutes);
 const categoriaRoutes = require('./src/routes/categoriaRoutes');
 app.use('/api/categorias', authenticateToken, categoriaRoutes);
 
+const clienteRoutes = require('./src/routes/clienteRoutes');
+app.use('/api/clientes', authenticateToken, clienteRoutes);
+
 // Middleware central de manejo de errores (debe ir DESPUÉS de las rutas).
 // Express 5 reenvía acá los errores lanzados en los controllers (incluso async).
 const errorHandler = require('./src/middleware/errorHandler');

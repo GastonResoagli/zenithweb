@@ -51,9 +51,12 @@ function filtrarVentasPorFecha(ventas, fechaDesde, fechaHasta) {
 
 // Genera el PDF del reporte de ventas en memoria y lo devuelve como Buffer (no se guarda en disco)
 exports.generarPDF = async (filtros) => {
-    // Trae las ventas y aplica el filtro de fechas recibido (el reporte se acota al período pedido)
+    // Trae las ventas y aplica los filtros recibidos (período y, opcionalmente, cliente)
     const todas = await ventaService.consultarVentas();
-    const datos = filtrarVentasPorFecha(todas, filtros.fechaDesde, filtros.fechaHasta);
+    let datos = filtrarVentasPorFecha(todas, filtros.fechaDesde, filtros.fechaHasta);
+    if (filtros.id_cliente) {
+        datos = datos.filter(v => String(v.id_cliente) === String(filtros.id_cliente));
+    }
 
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: MARGIN_L, size: 'A4', bufferPages: true });

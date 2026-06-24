@@ -14,6 +14,7 @@ export const obtenerMovimientos = async (filtros) => {
     if (filtros.fechaDesde) params.set('fechaDesde', filtros.fechaDesde);
     if (filtros.fechaHasta) params.set('fechaHasta', filtros.fechaHasta);
     if (filtros.tipo)       params.set('tipo', filtros.tipo);
+    if (filtros.id_cliente) params.set('id_cliente', filtros.id_cliente);
 
     const res = await fetch(`${BASE}?${params}`, { headers: authHeaders() });
     if (!res.ok) throw new Error('Error al obtener movimientos');

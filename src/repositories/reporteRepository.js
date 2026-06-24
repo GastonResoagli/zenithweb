@@ -2,7 +2,7 @@
 const db = require('../db/connection');
 
 // Devuelve los movimientos de inventario que cumplen los filtros recibidos (todos opcionales)
-exports.obtenerMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto }) => {
+exports.obtenerMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto, id_cliente }) => {
     // Para salidas mostramos el nombre del cliente; para entradas, el operador que las registró
     let query = `
         SELECT ri.id_registro, ri.tipo, ri.cantidad, ri.total, ri.fecha,
@@ -24,6 +24,8 @@ exports.obtenerMovimientos = async ({ fechaDesde, fechaHasta, tipo, id_producto 
     if (fechaHasta) { query += ` AND ri.fecha <= $${i++}`; params.push(fechaHasta + ' 23:59:59'); }
     if (tipo) { query += ` AND ri.tipo = $${i++}`; params.push(tipo); }
     if (id_producto) { query += ` AND ri.id_producto = $${i++}`; params.push(id_producto); }
+    // Filtro por cliente: solo aplica a salidas (las entradas no tienen venta asociada)
+    if (id_cliente) { query += ` AND v.id_cliente = $${i++}`; params.push(id_cliente); }
 
     query += ' ORDER BY ri.fecha DESC';
 

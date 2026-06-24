@@ -1,6 +1,7 @@
 // Página de reportes: consulta movimientos con filtros y permite descargar el PDF.
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { obtenerMovimientos, generarReporte } from '../api/reportes';
+import { obtenerClientes } from '../api/clientes';
 import './Reportes.css';
 
 const Reportes = () => {
@@ -8,12 +9,17 @@ const Reportes = () => {
     const [fechaDesde, setFechaDesde] = useState('');
     const [fechaHasta, setFechaHasta] = useState('');
     const [tipo, setTipo] = useState('');
+    const [idCliente, setIdCliente] = useState('');       // filtro por cliente (solo aplica a ventas)
+    const [clientes, setClientes] = useState([]);         // clientes para el selector
     const [movimientos, setMovimientos] = useState(null); // null = todavía no se consultó
     const [error, setError] = useState('');
     const [cargando, setCargando] = useState(false);      // mientras consulta la tabla
     const [descargando, setDescargando] = useState(false);// mientras genera el PDF
 
-    const filtros = { fechaDesde, fechaHasta, tipo: tipo || undefined };
+    // Carga los clientes para el filtro (una sola vez)
+    useEffect(() => { obtenerClientes().then(setClientes).catch(() => {}); }, []);
+
+    const filtros = { fechaDesde, fechaHasta, tipo: tipo || undefined, id_cliente: idCliente || undefined };
 
     // Consulta los movimientos según los filtros y los muestra en la tabla
     const handleConsultar = async (e) => {
@@ -94,6 +100,15 @@ const Reportes = () => {
                             <option value="">Todos</option>
                             <option value="entrada">Entrada</option>
                             <option value="salida">Salida</option>
+                        </select>
+                    </div>
+                    <div className="filter-group">
+                        <label className="form-label">Cliente</label>
+                        <select value={idCliente} onChange={e => setIdCliente(e.target.value)} className="form-input">
+                            <option value="">Todos</option>
+                            {clientes.map(c => (
+                                <option key={c.id_cliente} value={c.id_cliente}>{c.nombre}</option>
+                            ))}
                         </select>
                     </div>
                     <button

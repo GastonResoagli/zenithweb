@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { obtenerVentas, obtenerPorId, crear } from '../api/ventas';
 import { obtenerProductos } from '../api/productos';
+import { obtenerClientes } from '../api/clientes';
 import './Ventas.css';
 
 // Datos por defecto de una venta nueva
@@ -14,6 +15,7 @@ const ventaVacia = {
 const Ventas = () => {
     const [ventas, setVentas] = useState([]);
     const [productos, setProductos] = useState([]);
+    const [clientes, setClientes] = useState([]);           // clientes existentes para autocompletar
     const [formulario, setFormulario] = useState(false);    // muestra/oculta el form de nueva venta
     const [datosVenta, setDatosVenta] = useState(ventaVacia);
     const [detalles, setDetalles] = useState([]);       // líneas de la venta en curso
@@ -33,8 +35,20 @@ const Ventas = () => {
         try { setProductos(await obtenerProductos({ soloActivos: true })); } catch {setError('Error al cargar productos');}
     };
 
-     // Carga inicial en paralelo de ventas y productos
-     useEffect(() => { Promise.all([cargarVentas(), cargarProductos()]); }, []);
+     // Trae los clientes existentes (para autocompletar el documento en la venta)
+    const cargarClientes = async () => {
+        try { setClientes(await obtenerClientes()); } catch { /* el autocompletado queda vacío si falla */ }
+    };
+
+    // Carga inicial en paralelo de ventas, productos y clientes
+     useEffect(() => { Promise.all([cargarVentas(), cargarProductos(), cargarClientes()]); }, []);
+
+    // Al escribir el documento: si coincide con un cliente existente, precarga su nombre
+    const onDocumentoChange = (valor) => {
+        const doc = valor.replace(/\D/g, '');
+        const cli = clientes.find(c => c.dni && c.dni.replace(/\D/g, '') === doc);
+        setDatosVenta({ ...datosVenta, documento_cliente: doc, ...(cli ? { nombre_cliente: cli.nombre } : {}) });
+    };
 
     // Total de la venta en curso: suma de los subtotales de cada línea
     const montoTotal = detalles.reduce((acc, d) => acc + d.subtotal, 0);
@@ -117,7 +131,13 @@ const Ventas = () => {
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Documento cliente</label>
-                                <input value={datosVenta.documento_cliente} onChange={e => setDatosVenta({ ...datosVenta, documento_cliente: e.target.value.replace(/\D/g, '') })} placeholder="DNI / CUIT" inputMode="numeric" required className="form-input" />
+                                <input value={datosVenta.documento_cliente} onChange={e => onDocumentoChange(e.target.value)} placeholder="DNI / CUIT" inputMode="numeric" list="lista-clientes" required className="form-input" />
+                                {/* Sugerencias de clientes ya registrados (se puede tipear uno nuevo) */}
+                                <datalist id="lista-clientes">
+                                    {clientes.map(c => (
+                                        <option key={c.id_cliente} value={(c.dni || '').replace(/\D/g, '')}>{c.nombre}</option>
+                                    ))}
+                                </datalist>
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Nombre cliente</label>
